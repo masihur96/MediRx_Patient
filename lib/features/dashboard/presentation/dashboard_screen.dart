@@ -50,12 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         id: '3', name: 'Vitamin D3', dosage: '2000 IU', time: '08:00 PM'),
   ];
 
-  final List<Widget> _screens = [
-    const _DashboardHomeView(),
-    const MedicationScreen(isTab: true),
-    const SchedulingScreen(isTab: true),
-    const AiAssistantScreen(isTab: true),
-  ];
+
 
   String _getAppBarTitle(BuildContext context, LocalizationProvider l10n) {
     switch (_selectedIndex) {
@@ -97,6 +92,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final l10n = Provider.of<LocalizationProvider>(context);
 
+    final screens = [
+      _DashboardHomeView(
+        todayMeds: _todayMeds,
+        onToggleMedStatus: _toggleMedStatus,
+        onViewAllTap: () => setState(() => _selectedIndex = 1),
+      ),
+      const MedicationScreen(isTab: true),
+      const SchedulingScreen(isTab: true),
+      const AiAssistantScreen(isTab: true),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle(context, l10n),
@@ -115,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: IndexedStack(
         index: _selectedIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
@@ -275,12 +281,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _DashboardHomeView extends StatelessWidget {
-  const _DashboardHomeView();
+  final List<MedicationTask> todayMeds;
+  final Function(String) onToggleMedStatus;
+  final VoidCallback onViewAllTap;
+
+  const _DashboardHomeView({
+    required this.todayMeds,
+    required this.onToggleMedStatus,
+    required this.onViewAllTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = Provider.of<LocalizationProvider>(context);
-    final state = context.findAncestorStateOfType<_DashboardScreenState>()!;
 
     return SingleChildScrollView(
       child: Padding(
@@ -327,15 +340,14 @@ class _DashboardHomeView extends StatelessWidget {
                       ?.copyWith(fontSize: 18),
                 ),
                 TextButton(
-                  onPressed: () =>
-                      state.setState(() => state._selectedIndex = 1),
+                  onPressed: onViewAllTap,
                   child: const Text('View All'),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            ...state._todayMeds
-                .map((med) => _buildTodayMedCard(context, med, state)),
+            ...todayMeds
+                .map((med) => _buildTodayMedCard(context, med)),
 
             const SizedBox(height: 32),
 
@@ -419,7 +431,7 @@ class _DashboardHomeView extends StatelessWidget {
   }
 
   Widget _buildTodayMedCard(
-      BuildContext context, MedicationTask med, _DashboardScreenState state) {
+      BuildContext context, MedicationTask med) {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -461,7 +473,7 @@ class _DashboardHomeView extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () => state._toggleMedStatus(med.id),
+              onPressed: () => onToggleMedStatus(med.id),
               icon: Icon(
                 med.isTaken ? LucideIcons.checkCircle2 : LucideIcons.circle,
                 color: med.isTaken ? AppColors.primaryTeal : Colors.grey[300],
@@ -518,11 +530,11 @@ class _DashboardHomeView extends StatelessWidget {
               // Mock consistency levels
               double opacity = 0.1;
               if (index < 5)
-                opacity = 1.0;
+                  opacity = 1.0;
               else if (index < 10)
-                opacity = 0.4;
+                  opacity = 0.4;
               else if (index < 15)
-                opacity = 0.8;
+                  opacity = 0.8;
               else if (index == 20) opacity = 0.1;
 
               return Container(
