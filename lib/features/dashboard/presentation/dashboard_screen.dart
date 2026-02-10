@@ -8,8 +8,10 @@ import '../../ai_assistant/presentation/ai_assistant_screen.dart';
 import '../../medication/presentation/medication_screen.dart';
 import '../../menstrual_cycle/presentation/menstrual_cycle_screen.dart';
 import '../../nearest_medical/presentation/nearest_medical_screen.dart';
+import '../../notification/presentation/notification_screen.dart';
 import '../../pediatric_dose/presentation/pediatric_dose_screen.dart';
 import '../../pregnancy/presentation/pregnancy_screen.dart';
+import '../../profile/presentation/profile_screen.dart';
 import '../../rating/presentation/doctor_rating_screen.dart';
 import '../../scheduling/presentation/scheduling_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
@@ -73,8 +75,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ];
     }
     return [
-      IconButton(onPressed: () {}, icon: const Icon(LucideIcons.bell)),
-      IconButton(onPressed: () {}, icon: const Icon(LucideIcons.userCircle)),
+      IconButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const NotificationScreen()));
+        },
+        icon: const Icon(LucideIcons.bell),
+      ),
+      IconButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()));
+        },
+        icon: const Icon(LucideIcons.userCircle),
+      ),
       const SizedBox(width: 8),
     ];
   }
