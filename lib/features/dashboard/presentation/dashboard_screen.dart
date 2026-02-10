@@ -50,8 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         id: '3', name: 'Vitamin D3', dosage: '2000 IU', time: '08:00 PM'),
   ];
 
-
-
   String _getAppBarTitle(BuildContext context, LocalizationProvider l10n) {
     switch (_selectedIndex) {
       case 0:
@@ -346,8 +344,7 @@ class _DashboardHomeView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            ...todayMeds
-                .map((med) => _buildTodayMedCard(context, med)),
+            ...todayMeds.map((med) => _buildTodayMedCard(context, med)),
 
             const SizedBox(height: 32),
 
@@ -430,8 +427,7 @@ class _DashboardHomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildTodayMedCard(
-      BuildContext context, MedicationTask med) {
+  Widget _buildTodayMedCard(BuildContext context, MedicationTask med) {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -530,28 +526,110 @@ class _DashboardHomeView extends StatelessWidget {
               // Mock consistency levels
               double opacity = 0.1;
               if (index < 5)
-                  opacity = 1.0;
+                opacity = 1.0;
               else if (index < 10)
-                  opacity = 0.4;
+                opacity = 0.4;
               else if (index < 15)
-                  opacity = 0.8;
+                opacity = 0.8;
               else if (index == 20) opacity = 0.1;
 
-              return Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primaryTeal.withOpacity(opacity),
+              return Material(
+                color: AppColors.primaryTeal.withOpacity(opacity),
+                borderRadius: BorderRadius.circular(4),
+                child: InkWell(
+                  onTap: () => _showDateDetails(context, index + 1),
                   borderRadius: BorderRadius.circular(4),
-                ),
-                child: Center(
-                  child: Text('${index + 1}',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: opacity > 0.5 ? Colors.white : Colors.black54,
-                        fontWeight: FontWeight.bold,
-                      )),
+                  child: Center(
+                    child: Text('${index + 1}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: opacity > 0.5 ? Colors.white : Colors.black54,
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDateDetails(BuildContext context, int day) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'February $day, 2026',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryTeal,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Medication History',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Mock history list
+              _buildHistoryItem(
+                  'Atorvastatin', '10mg', '08:00 AM', true), // Taken
+              _buildHistoryItem(
+                  'Metformin', '500mg', '01:00 PM', true), // Taken
+              _buildHistoryItem(
+                  'Vitamin D3', '2000 IU', '08:00 PM', false), // Missed
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHistoryItem(
+      String name, String dosage, String time, bool isTaken) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            isTaken ? LucideIcons.checkCircle2 : LucideIcons.xCircle,
+            color: isTaken ? Colors.green : Colors.red,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('$dosage • $time',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+              ],
+            ),
+          ),
+          Text(
+            isTaken ? 'Taken' : 'Missed',
+            style: TextStyle(
+              color: isTaken ? Colors.green : Colors.red,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
