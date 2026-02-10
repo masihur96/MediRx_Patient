@@ -12,32 +12,34 @@ class MenstrualCycleScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Cycle Status Header
-          _buildCycleHeader(context),
-          const SizedBox(height: 24),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Cycle Status Header
+            _buildCycleHeader(context),
+            const SizedBox(height: 24),
 
-          // Mini Calendar View
-          _buildMiniCalendar(context),
-          const SizedBox(height: 24),
+            // Mini Calendar View
+            _buildMiniCalendar(context),
+            const SizedBox(height: 24),
 
-          // Symptoms & Flow
-          _buildSectionHeader(context, 'Log Symptoms & Flow'),
-          const SizedBox(height: 12),
-          _buildLogGrid(context),
+            // Symptoms & Flow
+            _buildSectionHeader(context, 'Log Symptoms & Flow'),
+            const SizedBox(height: 12),
+            _buildLogGrid(context),
 
-          const SizedBox(height: 32),
+            const SizedBox(height: 32),
 
-          // Predictions
-          _buildSectionHeader(context, 'Future Predictions'),
-          const SizedBox(height: 12),
-          _buildPredictionCard(context, 'Next Period', 'March 12, 2026',
-              LucideIcons.calendarDays, Colors.red[300]!),
-          const SizedBox(height: 12),
-          _buildPredictionCard(context, 'Fertility Window', 'Feb 24 - Mar 01',
-              LucideIcons.sparkles, Colors.purple[300]!),
-        ],
+            // Predictions
+            _buildSectionHeader(context, 'Future Predictions'),
+            const SizedBox(height: 12),
+            _buildPredictionCard(context, 'Next Period', 'March 12, 2026',
+                LucideIcons.calendarDays, Colors.red[300]!),
+            const SizedBox(height: 12),
+            _buildPredictionCard(context, 'Fertility Window', 'Feb 24 - Mar 01',
+                LucideIcons.sparkles, Colors.purple[300]!),
+          ],
+        ),
       ),
     );
   }

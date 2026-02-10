@@ -290,7 +290,7 @@ class _DashboardHomeView extends StatelessWidget {
           children: [
             // Welcome Text
             Text(
-              'Hello, Patient!',
+              'Hello, Druvo!',
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
