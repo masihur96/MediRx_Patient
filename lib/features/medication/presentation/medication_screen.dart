@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
+import 'scan_prescription_screen.dart';
+import 'e_prescription_screen.dart';
 
 class MedicationScreen extends StatelessWidget {
   final bool isTab;
@@ -48,10 +50,77 @@ class MedicationScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Medication'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(LucideIcons.plus)),
+          IconButton(
+            onPressed: () => _showAddPrescriptionOptions(context),
+            icon: const Icon(LucideIcons.plus),
+          ),
         ],
       ),
       body: body,
+    );
+  }
+
+  void _showAddPrescriptionOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Add Prescription',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryTeal.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(LucideIcons.scanLine, color: AppColors.primaryTeal),
+                ),
+                title: const Text('Scan Prescription'),
+                subtitle: const Text('Take a photo of your prescription'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ScanPrescriptionScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceDark.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child:  Icon(LucideIcons.fileDigit, color: AppColors.surfaceDark),
+                ),
+                title: const Text('E-Prescription'),
+                subtitle: const Text('Enter code from your doctor'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EPrescriptionScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
