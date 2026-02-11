@@ -3,6 +3,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../auth/presentation/login_screen.dart';
+import 'screens/health_records_screen.dart';
+import 'screens/help_support_screen.dart';
+import 'screens/personal_information_screen.dart';
+import 'screens/privacy_security_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -55,20 +59,50 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             _buildProfileItem(
-                context, LucideIcons.user, 'Personal Information'),
+              context,
+              LucideIcons.user,
+              'Personal Information',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => PersonalInformationScreen()),
+              ),
+            ),
             _buildProfileItem(
-                context, LucideIcons.heartPulse, 'Health Records'),
+              context,
+              LucideIcons.heartPulse,
+              'Health Records',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => HealthRecordsScreen()),
+              ),
+            ),
             _buildProfileItem(
-                context, LucideIcons.shieldCheck, 'Privacy & Security'),
+              context,
+              LucideIcons.shieldCheck,
+              'Privacy & Security',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const PrivacySecurityScreen()),
+              ),
+            ),
             _buildProfileItem(
-                context, LucideIcons.helpCircle, 'Help & Support'),
+              context,
+              LucideIcons.helpCircle,
+              'Help & Support',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileItem(BuildContext context, IconData icon, String title) {
+  Widget _buildProfileItem(
+      BuildContext context, IconData icon, String title, VoidCallback onTap) {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -88,9 +122,7 @@ class ProfileScreen extends StatelessWidget {
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         trailing:
             const Icon(LucideIcons.chevronRight, size: 20, color: Colors.grey),
-        onTap: () {
-          // TODO: Navigate to detail screen
-        },
+        onTap: onTap,
       ),
     );
   }
