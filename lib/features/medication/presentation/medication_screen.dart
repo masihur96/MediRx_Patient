@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import 'scan_prescription_screen.dart';
 import 'e_prescription_screen.dart';
+import 'add_prescription_screen.dart';
 
 class MedicationScreen extends StatelessWidget {
   final bool isTab;
@@ -113,6 +114,26 @@ class MedicationScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const EPrescriptionScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(LucideIcons.filePlus, color: Colors.green),
+                ),
+                title: const Text('Create Prescription'),
+                subtitle: const Text('Enter medication details manually'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddPrescriptionScreen()),
                   );
                 },
               ),
