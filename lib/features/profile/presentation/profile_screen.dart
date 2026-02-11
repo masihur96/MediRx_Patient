@@ -4,7 +4,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/presentation/login_screen.dart';
 import 'screens/health_records_screen.dart';
-import 'screens/help_support_screen.dart';
 import 'screens/personal_information_screen.dart';
 import 'screens/privacy_security_screen.dart';
 
@@ -84,15 +83,6 @@ class ProfileScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const PrivacySecurityScreen()),
-              ),
-            ),
-            _buildProfileItem(
-              context,
-              LucideIcons.helpCircle,
-              'Help & Support',
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
               ),
             ),
           ],

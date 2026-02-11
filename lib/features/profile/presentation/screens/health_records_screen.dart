@@ -56,13 +56,6 @@ class HealthRecordsScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Add new record
-        },
-        backgroundColor: AppColors.primaryTeal,
-        child: const Icon(LucideIcons.plus, color: Colors.white),
-      ),
     );
   }
 

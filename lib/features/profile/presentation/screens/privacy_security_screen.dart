@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import 'change_password_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
@@ -33,7 +34,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               'Change Password',
               'Update your password regularly',
               LucideIcons.lock,
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ChangePasswordScreen()),
+                );
+              },
             ),
             _buildSwitchTile(
               'Two-Factor Authentication',
