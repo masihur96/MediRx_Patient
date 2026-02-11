@@ -51,7 +51,7 @@ class MedicationScreen extends StatelessWidget {
         title: const Text('Medication'),
         actions: [
           IconButton(
-            onPressed: () => _showAddPrescriptionOptions(context),
+            onPressed: () => showAddPrescriptionOptions(context),
             icon: const Icon(LucideIcons.plus),
           ),
         ],
@@ -60,7 +60,7 @@ class MedicationScreen extends StatelessWidget {
     );
   }
 
-  void _showAddPrescriptionOptions(BuildContext context) {
+  static void showAddPrescriptionOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(

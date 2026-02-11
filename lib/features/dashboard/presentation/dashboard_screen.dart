@@ -71,7 +71,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_selectedIndex == 1) {
       // Medication tab
       return [
-        IconButton(onPressed: () {}, icon: const Icon(LucideIcons.plus)),
+        IconButton(
+          onPressed: () => MedicationScreen.showAddPrescriptionOptions(context),
+          icon: const Icon(LucideIcons.plus),
+        ),
       ];
     }
     return [
