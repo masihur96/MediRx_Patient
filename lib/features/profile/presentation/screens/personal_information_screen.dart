@@ -1,10 +1,111 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
+import 'edit_profile_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 
-class PersonalInformationScreen extends StatelessWidget {
+class PersonalInformationScreen extends StatefulWidget {
   const PersonalInformationScreen({super.key});
+
+  @override
+  State<PersonalInformationScreen> createState() =>
+      _PersonalInformationScreenState();
+}
+
+class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+
+  // Profile Data State
+  String _name = 'Druvo';
+  String _dob = '12 Dec 1990';
+  String _gender = 'Male';
+  String _bloodGroup = 'O+';
+  String _height = '175';
+  String _weight = '75';
+  String _email = 'patient@example.com';
+  String _phone = '+1 234 567 890';
+  String _address = '123 Main St, Springfield';
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(LucideIcons.camera, color: AppColors.primaryTeal),
+                title: const Text('Take a photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(LucideIcons.image, color: AppColors.primaryTeal),
+                title: const Text('Choose from gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _navigateToEditProfile() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfileScreen(
+          name: _name,
+          dob: _dob,
+          gender: _gender,
+          bloodGroup: _bloodGroup,
+          height: _height,
+          weight: _weight,
+          email: _email,
+          phone: _phone,
+          address: _address,
+        ),
+      ),
+    );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        _name = result['name'];
+        _dob = result['dob'];
+        _gender = result['gender'];
+        _bloodGroup = result['bloodGroup'];
+        _height = result['height'];
+        _weight = result['weight'];
+        _email = result['email'];
+        _phone = result['phone'];
+        _address = result['address'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,52 +129,57 @@ class PersonalInformationScreen extends StatelessWidget {
                       border:
                           Border.all(color: AppColors.primaryTeal, width: 3),
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 60,
                       backgroundColor: Colors.grey,
-                      child:
-                          Icon(LucideIcons.user, size: 60, color: Colors.white),
+                      backgroundImage:
+                          _image != null ? FileImage(_image!) : null,
+                      child: _image == null
+                          ? const Icon(LucideIcons.user,
+                              size: 60, color: Colors.white)
+                          : null,
                     ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryTeal,
-                        shape: BoxShape.circle,
+                    child: GestureDetector(
+                      onTap: _showImagePickerOptions,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryTeal,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(LucideIcons.camera,
+                            color: Colors.white, size: 20),
                       ),
-                      child: const Icon(LucideIcons.camera,
-                          color: Colors.white, size: 20),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 30),
-            _buildInfoTile(context, 'Full Name', 'Druvo'),
-            _buildInfoTile(context, 'Date of Birth', '12 Dec 1990'),
-            _buildInfoTile(context, 'Gender', 'Male'),
-            _buildInfoTile(context, 'Blood Group', 'O+'),
-            _buildInfoTile(context, 'Height', '175 cm'),
-            _buildInfoTile(context, 'Weight', '75 kg'),
+            _buildInfoTile(context, 'Full Name', _name),
+            _buildInfoTile(context, 'Date of Birth', _dob),
+            _buildInfoTile(context, 'Gender', _gender),
+            _buildInfoTile(context, 'Blood Group', _bloodGroup),
+            _buildInfoTile(context, 'Height', '$_height cm'),
+            _buildInfoTile(context, 'Weight', '$_weight kg'),
             const Divider(height: 40),
             _buildSectionHeader('Contact Details'),
             const SizedBox(height: 16),
-            _buildInfoTile(context, 'Email', 'patient@example.com',
+            _buildInfoTile(context, 'Email', _email,
                 icon: LucideIcons.mail),
-            _buildInfoTile(context, 'Phone', '+1 234 567 890',
+            _buildInfoTile(context, 'Phone', _phone,
                 icon: LucideIcons.phone),
-            _buildInfoTile(context, 'Address', '123 Main St, Springfield',
+            _buildInfoTile(context, 'Address', _address,
                 icon: LucideIcons.mapPin),
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Edit Profile
-                },
+                onPressed: _navigateToEditProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryTeal,
                   foregroundColor: Colors.white,

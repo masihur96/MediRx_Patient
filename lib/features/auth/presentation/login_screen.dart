@@ -168,10 +168,87 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 40),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4,
+                children: [
+                   Text(
+                    'By logging in, you agree to our',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  ),
+                  GestureDetector(
+                    onTap: () => _showLegalDialog('Terms & Conditions',
+                        'Here are the Terms & Conditions...'),
+                    child: const Text(
+                      'Terms & Conditions',
+                      style: TextStyle(
+                        color: AppColors.primaryTeal,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'and',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  ),
+                  GestureDetector(
+                    onTap: () => _showLegalDialog(
+                        'Privacy Policy', 'Here is the Privacy Policy...'),
+                    child: const Text(
+                      'Privacy Policy',
+                      style: TextStyle(
+                        color: AppColors.primaryTeal,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showLegalDialog(String title, String content) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(content),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryTeal,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
