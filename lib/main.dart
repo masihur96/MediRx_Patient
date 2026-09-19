@@ -3,12 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/app_localizations.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/onboarding_screen.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => LocalizationProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LocalizationProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
       child: const MediRxApp(),
     ),
   );
@@ -20,13 +24,14 @@ class MediRxApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizationProvider = Provider.of<LocalizationProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
       title: 'MediRx',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeProvider.themeMode,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -36,8 +41,8 @@ class MediRxApp extends StatelessWidget {
         Locale('en', ''),
         Locale('bn', ''),
       ],
-      locale: localizationProvider.language == AppLanguage.en 
-          ? const Locale('en', '') 
+      locale: localizationProvider.language == AppLanguage.en
+          ? const Locale('en', '')
           : const Locale('bn', ''),
       home: const OnboardingScreen(),
     );
