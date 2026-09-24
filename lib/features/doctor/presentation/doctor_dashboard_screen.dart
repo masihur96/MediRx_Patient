@@ -7,6 +7,7 @@ import 'doctor_patient_list_screen.dart';
 import 'doctor_prescriptions_screen.dart';
 import 'doctor_analytics_screen.dart';
 import 'doctor_settings_screen.dart';
+import 'doctor_profile_screen.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
@@ -136,8 +137,25 @@ class DoctorMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               
+              _buildMenuItem(context, LucideIcons.user, 'Profile', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorProfileScreen()));
+              }),
               _buildMenuItem(context, LucideIcons.layoutDashboard, 'Dashboard', () {
                 ZoomDrawer.of(context)?.close();
+              }),
+              _buildMenuItem(context, LucideIcons.calendar, 'Schedule', () {
+                ZoomDrawer.of(context)?.close();
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Schedule coming soon')));
+              }),
+              _buildMenuItem(context, LucideIcons.fileText, 'Prescriptions', () {
+                ZoomDrawer.of(context)?.close();
+              }),
+              _buildMenuItem(context, LucideIcons.users, 'Patients', () {
+                ZoomDrawer.of(context)?.close();
+              }),
+              _buildMenuItem(context, LucideIcons.clipboardList, 'My Notes', () {
+                ZoomDrawer.of(context)?.close();
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('My Notes coming soon')));
               }),
               _buildMenuItem(context, LucideIcons.settings, 'Settings', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorSettingsScreen()));
