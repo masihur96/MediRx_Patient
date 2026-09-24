@@ -81,16 +81,6 @@ class _DoctorMainScreenState extends State<_DoctorMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(LucideIcons.menu, color: AppColors.textDark),
-          onPressed: () {
-            widget.zoomDrawerController.toggle?.call();
-          },
-        ),
-      ),
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,

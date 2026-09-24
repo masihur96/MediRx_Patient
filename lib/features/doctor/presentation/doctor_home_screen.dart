@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../data/doctor_dummy_data.dart';
@@ -52,28 +53,16 @@ class DoctorHomeScreen extends StatelessWidget {
       floating: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
-      title: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primaryTeal, Color(0xFF00796B)],
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(LucideIcons.heartPulse, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            'MediRx Doctor',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontSize: 18,
-              color: AppColors.primaryTeal,
-            ),
-          ),
-        ],
+      leading: IconButton(
+        icon: const Icon(LucideIcons.menu, color: AppColors.textDark),
+        onPressed: () => ZoomDrawer.of(context)?.toggle(),
+      ),
+      title: Text(
+        'MediRx Doctor',
+        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          fontSize: 18,
+          color: AppColors.primaryTeal,
+        ),
       ),
       actions: [
         IconButton(
