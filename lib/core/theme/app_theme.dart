@@ -10,7 +10,7 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryTeal,
         primary: AppColors.primaryTeal,
-        secondary: AppColors.primaryLight,
+        secondary: AppColors.lightTeal,
         error: AppColors.errorRed,
         background: AppColors.backgroundLight,
         surface: AppColors.surfaceLight,
@@ -72,7 +72,7 @@ class AppTheme {
         seedColor: AppColors.primaryTeal,
         brightness: Brightness.dark,
         primary: AppColors.primaryTeal,
-        secondary: AppColors.primaryLight,
+        secondary: AppColors.lightTeal,
         error: AppColors.errorRed,
         background: AppColors.backgroundDark,
         surface: AppColors.surfaceDark,

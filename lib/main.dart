@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/theme/theme_provider.dart';
-import 'features/auth/presentation/onboarding_screen.dart';
+import 'features/auth/presentation/splash_screen.dart';
 
 void main() {
   runApp(
@@ -44,7 +44,7 @@ class MediRxApp extends StatelessWidget {
       locale: localizationProvider.language == AppLanguage.en
           ? const Locale('en', '')
           : const Locale('bn', ''),
-      home: const OnboardingScreen(),
+      home: const SplashScreen(),
     );
   }
 }

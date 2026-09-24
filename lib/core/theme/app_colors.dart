@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Primary Palette
-  static const Color primaryTeal = Color(0xFF009688); // #009688
-  static const Color primaryLight = Color(0xFFB2DFDB); // #B2DFDB
+  static const Color primaryTeal = Color(0xFF0F7A7A); // Dark Teal from design
+  static const Color lightTeal = Color(0xFF159A9C); // Lighter Teal
   static const Color mint = Color(0xFFE0F2F1);
+  static const Color gradientTop = Color(0xFFE0F7FA); // Light cyan/blue background
+  static const Color gradientBottom = Color(0xFFFFFFFF);
+  static const Color inputBackground = Color(0xFFF5F5F5);
   
   // Alert Palette
-  static const Color errorRed = Color(0xFFE57373); // #E57373
+  static const Color errorRed = Color(0xFFE57373);
   
   // Neutral Palette (Light Mode)
   static const Color backgroundLight = Colors.white;
