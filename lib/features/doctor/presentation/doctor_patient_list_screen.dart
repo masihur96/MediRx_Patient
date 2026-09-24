@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../data/doctor_dummy_data.dart';
@@ -45,6 +46,10 @@ class _DoctorPatientListScreenState extends State<DoctorPatientListScreen> {
         title: Text(
           'My Patients',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: const Icon(LucideIcons.menu, color: AppColors.textDark),
+          onPressed: () => ZoomDrawer.of(context)?.toggle(),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
