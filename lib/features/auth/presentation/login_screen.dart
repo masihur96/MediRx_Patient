@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/logo_widget.dart';
+import '../../dashboard/presentation/dashboard_screen.dart';
+import '../../doctor/presentation/doctor_dashboard_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -183,6 +185,56 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.primaryTeal,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Dummy Logins for Testing
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.person, color: AppColors.primaryTeal, size: 18),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.primaryTeal),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          label: const Text(
+                            'Patient',
+                            style: TextStyle(color: AppColors.primaryTeal, fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (_) => const DoctorDashboardScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.medical_services, color: AppColors.primaryTeal, size: 18),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.primaryTeal),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          label: const Text(
+                            'Doctor',
+                            style: TextStyle(color: AppColors.primaryTeal, fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
