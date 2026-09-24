@@ -11,7 +11,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   int _selectedRoleIndex = 1; // Default to Patient
-  final List<String> _roles = ['Doctor', 'Patient', 'Pharmacy', 'Hospital'];
+  final List<String> _roles = ['Doctor', 'Patient'];
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
@@ -172,7 +172,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                       // Form Fields
                       _buildTextField(hintText: 'Full Name'),
-                      _buildTextField(hintText: 'Email Address'),
+                      if (_selectedRoleIndex == 0) _buildTextField(hintText: 'BMDC Number'),
+                      if (_selectedRoleIndex == 0) _buildTextField(hintText: 'Email Address'),
                       _buildTextField(hintText: 'Phone Number'),
                       _buildTextField(
                         hintText: 'Create Password',
@@ -283,20 +284,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Google Sign Up
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Text(
-                          'Sign up with Google.',
-                          style: TextStyle(
-                            color: AppColors.primaryTeal,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ),
                       const SizedBox(height: 32),
                     ],
