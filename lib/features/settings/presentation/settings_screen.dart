@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -10,6 +11,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = Provider.of<LocalizationProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,7 +34,15 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
-          _buildSettingTile('Dark Mode', 'Off', LucideIcons.moon, isSwitch: true),
+          _buildSettingTile(
+            'Dark Mode',
+            themeProvider.isDark ? 'On' : 'Off',
+            themeProvider.isDark ? LucideIcons.moon : LucideIcons.sun,
+            isSwitch: true,
+            onSwitchChanged: (val) {
+              themeProvider.setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+            },
+          ),
           _buildSettingTile('Notifications', 'On', LucideIcons.bell, isSwitch: true),
           const SizedBox(height: 32),
           _buildSectionHeader('Support'),
@@ -75,7 +85,7 @@ class SettingsScreen extends StatelessWidget {
     return Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
   }
 
-  Widget _buildSettingTile(String title, String value, IconData icon, {VoidCallback? onTap, bool isSwitch = false}) {
+  Widget _buildSettingTile(String title, String value, IconData icon, {VoidCallback? onTap, bool isSwitch = false, ValueChanged<bool>? onSwitchChanged}) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
@@ -89,7 +99,11 @@ class SettingsScreen extends StatelessWidget {
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: value.isNotEmpty ? Text(value) : null,
       trailing: isSwitch 
-        ? Switch(value: value == 'On', onChanged: (_) {}, activeColor: AppColors.primaryTeal)
+        ? Switch(
+            value: value == 'On', 
+            onChanged: onSwitchChanged ?? (_) {}, 
+            activeColor: AppColors.primaryTeal
+          )
         : const Icon(LucideIcons.chevronRight, size: 18),
       onTap: onTap,
     );
