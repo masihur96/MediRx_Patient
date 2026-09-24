@@ -17,34 +17,29 @@ class MediRxLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = color ?? AppColors.primaryTeal;
     final effectiveTextColor = textColor ?? AppColors.primaryTeal;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // A stylized icon to represent the logo in the image
-        // Since we don't have the exact asset, we use a combination of icons
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Icon(
-              Icons.health_and_safety, // A placeholder for the cross/leaf icon
-              size: size,
-              color: effectiveColor,
-            ),
-            // We can add some overlay if we want to make it look unique
-            Positioned(
-              right: size * 0.1,
-              bottom: size * 0.1,
-              child: Icon(
-                Icons.eco, // represents the leaf part
-                size: size * 0.4,
-                color: Colors.white.withOpacity(0.9),
-              ),
-            ),
-          ],
+        // Using the extracted logo image
+        ClipRRect(
+          borderRadius: BorderRadius.circular(size * 0.2),
+          child: Image.asset(
+            'assets/images/logo.jpg',
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback to icon if asset fails to load
+              return Icon(
+                Icons.health_and_safety,
+                size: size,
+                color: color ?? AppColors.primaryTeal,
+              );
+            },
+          ),
         ),
         if (showText) ...[
           SizedBox(height: size * 0.1),
@@ -64,7 +59,7 @@ class MediRxLogo extends StatelessWidget {
                 'Rx',
                 style: TextStyle(
                   fontSize: size * 0.35,
-                  fontWeight: FontWeight.w400, // Lighter weight for Rx
+                  fontWeight: FontWeight.w400,
                   color: effectiveTextColor,
                 ),
               ),

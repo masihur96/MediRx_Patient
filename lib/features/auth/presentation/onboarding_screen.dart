@@ -17,17 +17,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       "title": "Seamless Management.",
       "description": "Doctors: Effortlessly create and manage digital prescriptions.",
-      "icon": Icons.medical_services_outlined,
+      "image": "assets/images/onboarding_1.jpg",
     },
     {
       "title": "Medication Adherence.",
       "description": "Patients: Never miss a dose with smart reminders and adherence tracking.",
-      "icon": Icons.notifications_active_outlined,
+      "image": "assets/images/onboarding_2.jpg",
     },
     {
       "title": "Integrated Network.",
       "description": "Connecting doctors, patients, pharmacies, and hospitals.",
-      "icon": Icons.map_outlined,
+      "image": "assets/images/onboarding_3.jpg",
     },
   ];
 
@@ -67,18 +67,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Spacer(),
-                        // Illustration Placeholder
+                        // Extracted Illustration
                         Container(
                           height: 250,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: AppColors.gradientTop.withOpacity(0.5),
-                            shape: BoxShape.circle,
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Icon(
-                            _onboardingData[index]['icon'],
-                            size: 100,
-                            color: AppColors.primaryTeal,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              _onboardingData[index]['image']!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: AppColors.gradientTop.withOpacity(0.5),
+                                  child: const Icon(Icons.image, size: 100, color: AppColors.primaryTeal),
+                                );
+                              },
+                            ),
                           ),
                         ),
                         const SizedBox(height: 48),
