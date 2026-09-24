@@ -17,17 +17,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       "title": "Seamless Management.",
       "description": "Doctors: Effortlessly create and manage digital prescriptions.",
-      "image": "assets/images/onboarding_1.jpg",
+      "image": "assets/images/onboard1.jpeg",
     },
     {
       "title": "Medication Adherence.",
       "description": "Patients: Never miss a dose with smart reminders and adherence tracking.",
-      "image": "assets/images/onboarding_2.jpg",
+      "image": "assets/images/onboard2.jpeg",
     },
     {
       "title": "Integrated Network.",
       "description": "Connecting doctors, patients, pharmacies, and hospitals.",
-      "image": "assets/images/onboarding_3.jpg",
+      "image": "assets/images/onboard3.jpeg",
     },
   ];
 
