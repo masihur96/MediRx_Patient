@@ -8,6 +8,7 @@ import 'doctor_prescriptions_screen.dart';
 import 'doctor_analytics_screen.dart';
 import 'doctor_settings_screen.dart';
 import 'doctor_profile_screen.dart';
+import '../../auth/presentation/login_screen.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
@@ -25,6 +26,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
       controller: _zoomDrawerController,
       style: DrawerStyle.defaultStyle,
       menuScreen: const DoctorMenuScreen(),
+      mainScreenTapClose: true,
       mainScreen: _DoctorMainScreen(zoomDrawerController: _zoomDrawerController),
       borderRadius: 24.0,
       showShadow: true,
@@ -137,9 +139,6 @@ class DoctorMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               
-              _buildMenuItem(context, LucideIcons.user, 'Profile', () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorProfileScreen()));
-              }),
               _buildMenuItem(context, LucideIcons.layoutDashboard, 'Dashboard', () {
                 ZoomDrawer.of(context)?.close();
               }),
@@ -160,10 +159,16 @@ class DoctorMenuScreen extends StatelessWidget {
               _buildMenuItem(context, LucideIcons.settings, 'Settings', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorSettingsScreen()));
               }),
+              _buildMenuItem(context, LucideIcons.user, 'Profile', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorProfileScreen()));
+              }),
               
               const Spacer(),
               _buildMenuItem(context, LucideIcons.logOut, 'Logout', () {
-                Navigator.of(context).pushReplacementNamed('/'); // Assume we have a root login route or just pop all
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (Route<dynamic> route) => false,
+                );
               }),
             ],
           ),
