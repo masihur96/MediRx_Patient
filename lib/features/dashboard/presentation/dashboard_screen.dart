@@ -263,6 +263,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDrawerItem(IconData icon, String title, int index) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
       leading: Icon(icon,
           color: _selectedIndex == index ? AppColors.primaryTeal : Colors.grey),
@@ -270,7 +271,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           style: TextStyle(
               color: _selectedIndex == index
                   ? AppColors.primaryTeal
-                  : Colors.black87,
+                  : (isDark ? Colors.white70 : Colors.black87),
               fontWeight: _selectedIndex == index
                   ? FontWeight.bold
                   : FontWeight.normal)),
@@ -478,7 +479,9 @@ class _DashboardHomeView extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         decoration:
                             med.isTaken ? TextDecoration.lineThrough : null,
-                        color: med.isTaken ? Colors.grey : Colors.black87,
+                        color: med.isTaken 
+                          ? Colors.grey 
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                       )),
                   Text('${med.dosage} • ${med.time}',
                       style: TextStyle(fontSize: 12, color: Colors.grey[600])),
@@ -560,7 +563,9 @@ class _DashboardHomeView extends StatelessWidget {
                     child: Text('${index + 1}',
                         style: TextStyle(
                           fontSize: 10,
-                          color: opacity > 0.5 ? Colors.white : Colors.black54,
+                          color: opacity > 0.5 
+                              ? Colors.white 
+                              : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black54),
                           fontWeight: FontWeight.bold,
                         )),
                   ),

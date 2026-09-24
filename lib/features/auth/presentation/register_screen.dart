@@ -28,9 +28,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         obscureText: obscureText,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: AppColors.textGray, fontSize: 14),
+          hintStyle: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : AppColors.textGray, fontSize: 14),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Theme.of(context).colorScheme.surface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -62,20 +62,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.gradientTop,
-              AppColors.gradientBottom,
-            ],
-            stops: [0.0, 0.4],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: SafeArea(
+        child: Column(
             children: [
               // Top Bar with back button and horizontal logo
               Padding(
@@ -83,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: AppColors.textDark, size: 20),
+                      icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).iconTheme.color, size: 20),
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Expanded(
@@ -121,12 +110,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'Registration',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
+                          color: Theme.of(context).textTheme.headlineMedium?.color,
                         ),
                       ),
                       const SizedBox(height: 24),

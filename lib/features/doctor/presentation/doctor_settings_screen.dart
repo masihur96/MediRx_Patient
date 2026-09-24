@@ -33,7 +33,7 @@ class _DoctorSettingsScreenState extends State<DoctorSettingsScreen> {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: Text(
-          'Settings',
+          locProvider.translate('settings'),
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 18),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -43,7 +43,7 @@ class _DoctorSettingsScreenState extends State<DoctorSettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // ─── Language Section ────────────────────────────────────────────────
-          _buildSectionHeader(context, 'Preferences', LucideIcons.sliders),
+          _buildSectionHeader(context, locProvider.translate('preferences'), LucideIcons.sliders),
           const SizedBox(height: 12),
           _buildSettingsCard(
             context,
@@ -53,7 +53,7 @@ class _DoctorSettingsScreenState extends State<DoctorSettingsScreen> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: _iconBox(LucideIcons.globe, Colors.blue),
-                  title: const Text('Language', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: Text(locProvider.translate('language'), style: const TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: Text(locProvider.language == AppLanguage.en ? 'English' : 'বাংলা'),
                   trailing: Container(
                     decoration: BoxDecoration(
@@ -86,7 +86,7 @@ class _DoctorSettingsScreenState extends State<DoctorSettingsScreen> {
                     isDark ? LucideIcons.moon : LucideIcons.sun,
                     isDark ? Colors.indigo : Colors.amber,
                   ),
-                  title: const Text('Theme', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: Text(locProvider.translate('dark_mode'), style: const TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: Text(_themeLabel(themeProvider.themeMode)),
                   trailing: DropdownButton<ThemeMode>(
                     value: themeProvider.themeMode,
@@ -107,7 +107,7 @@ class _DoctorSettingsScreenState extends State<DoctorSettingsScreen> {
           const SizedBox(height: 24),
 
           // ─── Notification Settings ───────────────────────────────────────────
-          _buildSectionHeader(context, 'Notifications', LucideIcons.bell),
+          _buildSectionHeader(context, locProvider.translate('notifications'), LucideIcons.bell),
           const SizedBox(height: 12),
           _buildSettingsCard(
             context,

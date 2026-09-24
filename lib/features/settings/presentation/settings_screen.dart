@@ -22,7 +22,7 @@ class SettingsScreen extends StatelessWidget {
         children: [
           _buildProfileSection(),
           const SizedBox(height: 32),
-          _buildSectionHeader('Preferences'),
+          _buildSectionHeader(l10n.translate('preferences')),
           const SizedBox(height: 16),
           _buildSettingTile(
             l10n.translate('language'),
@@ -35,7 +35,7 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           _buildSettingTile(
-            'Dark Mode',
+            l10n.translate('dark_mode'),
             themeProvider.isDark ? 'On' : 'Off',
             themeProvider.isDark ? LucideIcons.moon : LucideIcons.sun,
             isSwitch: true,
@@ -43,16 +43,16 @@ class SettingsScreen extends StatelessWidget {
               themeProvider.setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
             },
           ),
-          _buildSettingTile('Notifications', 'On', LucideIcons.bell, isSwitch: true),
+          _buildSettingTile(l10n.translate('notifications'), 'On', LucideIcons.bell, isSwitch: true),
           const SizedBox(height: 32),
-          _buildSectionHeader('Support'),
+          _buildSectionHeader(l10n.translate('support')),
           const SizedBox(height: 16),
-          _buildSettingTile('Help Center', '', LucideIcons.helpCircle),
-          _buildSettingTile('Privacy Policy', '', LucideIcons.lock),
+          _buildSettingTile(l10n.translate('help_center'), '', LucideIcons.helpCircle),
+          _buildSettingTile(l10n.translate('privacy_policy'), '', LucideIcons.lock),
           const SizedBox(height: 32),
           TextButton(
             onPressed: () {},
-            child: const Text('Log Out', style: TextStyle(color: AppColors.errorRed, fontWeight: FontWeight.bold)),
+            child: Text(l10n.translate('logout'), style: const TextStyle(color: AppColors.errorRed, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

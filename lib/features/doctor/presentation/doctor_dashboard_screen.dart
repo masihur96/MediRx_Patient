@@ -9,6 +9,8 @@ import 'doctor_analytics_screen.dart';
 import 'doctor_settings_screen.dart';
 import 'doctor_profile_screen.dart';
 import '../../auth/presentation/login_screen.dart';
+import 'package:provider/provider.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
@@ -58,31 +60,33 @@ class _DoctorMainScreenState extends State<_DoctorMainScreen> {
     DoctorAnalyticsScreen(),
   ];
 
-  final List<NavigationDestination> _destinations = const [
-    NavigationDestination(
-      icon: Icon(LucideIcons.layoutDashboard),
-      selectedIcon: Icon(LucideIcons.layoutDashboard, color: AppColors.primaryTeal),
-      label: 'Home',
-    ),
-    NavigationDestination(
-      icon: Icon(LucideIcons.users),
-      selectedIcon: Icon(LucideIcons.users, color: AppColors.primaryTeal),
-      label: 'Patients',
-    ),
-    NavigationDestination(
-      icon: Icon(LucideIcons.fileText),
-      selectedIcon: Icon(LucideIcons.fileText, color: AppColors.primaryTeal),
-      label: 'Rx',
-    ),
-    NavigationDestination(
-      icon: Icon(LucideIcons.barChart2),
-      selectedIcon: Icon(LucideIcons.barChart2, color: AppColors.primaryTeal),
-      label: 'Analytics',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = Provider.of<LocalizationProvider>(context);
+    
+    final destinations = [
+      NavigationDestination(
+        icon: const Icon(LucideIcons.layoutDashboard),
+        selectedIcon: const Icon(LucideIcons.layoutDashboard, color: AppColors.primaryTeal),
+        label: l10n.translate('home'),
+      ),
+      NavigationDestination(
+        icon: const Icon(LucideIcons.users),
+        selectedIcon: const Icon(LucideIcons.users, color: AppColors.primaryTeal),
+        label: l10n.translate('patients'),
+      ),
+      NavigationDestination(
+        icon: const Icon(LucideIcons.fileText),
+        selectedIcon: const Icon(LucideIcons.fileText, color: AppColors.primaryTeal),
+        label: l10n.translate('rx'),
+      ),
+      NavigationDestination(
+        icon: const Icon(LucideIcons.barChart2),
+        selectedIcon: const Icon(LucideIcons.barChart2, color: AppColors.primaryTeal),
+        label: l10n.translate('analytics'),
+      ),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
@@ -93,7 +97,7 @@ class _DoctorMainScreenState extends State<_DoctorMainScreen> {
         onDestinationSelected: (index) {
           setState(() => _selectedIndex = index);
         },
-        destinations: _destinations,
+        destinations: destinations,
         backgroundColor: Theme.of(context).colorScheme.surface,
         indicatorColor: AppColors.primaryTeal.withOpacity(0.15),
         elevation: 4,
@@ -108,6 +112,7 @@ class DoctorMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = Provider.of<LocalizationProvider>(context);
     return Scaffold(
       backgroundColor: AppColors.primaryTeal,
       body: SafeArea(
@@ -139,32 +144,32 @@ class DoctorMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               
-              _buildMenuItem(context, LucideIcons.layoutDashboard, 'Dashboard', () {
+              _buildMenuItem(context, LucideIcons.layoutDashboard, l10n.translate('dashboard'), () {
                 ZoomDrawer.of(context)?.close();
               }),
-              _buildMenuItem(context, LucideIcons.calendar, 'Schedule', () {
+              _buildMenuItem(context, LucideIcons.calendar, l10n.translate('schedule'), () {
                 ZoomDrawer.of(context)?.close();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Schedule coming soon')));
               }),
-              _buildMenuItem(context, LucideIcons.fileText, 'Prescriptions', () {
+              _buildMenuItem(context, LucideIcons.fileText, l10n.translate('rx'), () {
                 ZoomDrawer.of(context)?.close();
               }),
-              _buildMenuItem(context, LucideIcons.users, 'Patients', () {
+              _buildMenuItem(context, LucideIcons.users, l10n.translate('patients'), () {
                 ZoomDrawer.of(context)?.close();
               }),
-              _buildMenuItem(context, LucideIcons.clipboardList, 'My Notes', () {
+              _buildMenuItem(context, LucideIcons.clipboardList, l10n.translate('my_notes'), () {
                 ZoomDrawer.of(context)?.close();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('My Notes coming soon')));
               }),
-              _buildMenuItem(context, LucideIcons.settings, 'Settings', () {
+              _buildMenuItem(context, LucideIcons.settings, l10n.translate('settings'), () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorSettingsScreen()));
               }),
-              _buildMenuItem(context, LucideIcons.user, 'Profile', () {
+              _buildMenuItem(context, LucideIcons.user, l10n.translate('profile'), () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorProfileScreen()));
               }),
               
               const Spacer(),
-              _buildMenuItem(context, LucideIcons.logOut, 'Logout', () {
+              _buildMenuItem(context, LucideIcons.logOut, l10n.translate('logout'), () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                   (Route<dynamic> route) => false,
