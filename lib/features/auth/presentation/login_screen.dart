@@ -35,8 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const MediRxLogo(size: 80),
-                  const SizedBox(height: 24),
+                  const MediRxLogo(size: 150,showText: false,),
+
                   const Text(
                     'Secure Login',
                     style: TextStyle(
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // ID Field
                   TextField(
                     decoration: InputDecoration(
-                      hintText: 'MediRx Health ID / Email / Phone',
+                      hintText: 'MediRx Health ID / Phone',
                       hintStyle: const TextStyle(color: AppColors.textGray, fontSize: 14),
                       filled: true,
                       fillColor: Colors.white,
@@ -185,20 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  
-                  // Pharmacy/Hospital Login Link
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Text(
-                      'Pharmacy/Hospital Login.',
-                      style: TextStyle(
-                        color: AppColors.primaryTeal,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+
                 ],
               ),
             ),

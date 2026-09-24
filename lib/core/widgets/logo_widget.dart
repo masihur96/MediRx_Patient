@@ -27,7 +27,7 @@ class MediRxLogo extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(size * 0.2),
           child: Image.asset(
-            'assets/images/logo.jpg',
+            'assets/images/logo.png',
             width: size,
             height: size,
             fit: BoxFit.cover,
