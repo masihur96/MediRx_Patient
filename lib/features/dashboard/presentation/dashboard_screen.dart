@@ -332,15 +332,36 @@ class _DashboardHomeView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Health Summary Cards
-            Row(
-              children: [
-                _buildSummaryCard(context, 'Heart Rate', '72 bpm',
-                    LucideIcons.heart, Colors.red[50]!, Colors.red),
-                const SizedBox(width: 16),
-                _buildSummaryCard(context, 'Steps', '4,231',
-                    LucideIcons.footprints, Colors.orange[50]!, Colors.orange),
-              ],
+            // Health Summary Cards (Basic Test Results)
+            Text(
+              'Basic Test Results',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.copyWith(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 130,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _buildVitalCard(context, 'Heart Rate', '72 bpm',
+                      LucideIcons.heart, Colors.red[50]!, Colors.red),
+                  const SizedBox(width: 12),
+                  _buildVitalCard(context, 'Blood Pressure', '120/80',
+                      LucideIcons.activity, Colors.blue[50]!, Colors.blue),
+                  const SizedBox(width: 12),
+                  _buildVitalCard(context, 'SpO2', '98%',
+                      LucideIcons.wind, Colors.cyan[50]!, Colors.cyan),
+                  const SizedBox(width: 12),
+                  _buildVitalCard(context, 'Blood Glucose', '95 mg/dL',
+                      LucideIcons.droplet, Colors.purple[50]!, Colors.purple),
+                  const SizedBox(width: 12),
+                  _buildVitalCard(context, 'Temperature', '36.5 °C',
+                      LucideIcons.thermometer, Colors.orange[50]!, Colors.orange),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
 
@@ -690,6 +711,32 @@ class _DashboardHomeView extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: Colors.grey[700])),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildVitalCard(BuildContext context, String title, String value,
+      IconData icon, Color bgColor, Color iconColor) {
+    return Container(
+      width: 140,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: iconColor, size: 24),
+          const SizedBox(height: 12),
+          Text(value,
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(title,
+              style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+        ],
       ),
     );
   }
