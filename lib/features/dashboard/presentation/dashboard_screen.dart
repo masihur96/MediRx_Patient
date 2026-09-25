@@ -319,28 +319,7 @@ class _DashboardHomeView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Welcome Text
-            Text(
-              'Hello, Druvo!',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'How are you feeling today?',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
 
-            // Health Summary Cards (Basic Test Results)
-            Text(
-              'Basic Test Results',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(fontSize: 18),
-            ),
             const SizedBox(height: 16),
             _buildVitalsChart(context),
             const SizedBox(height: 32),
