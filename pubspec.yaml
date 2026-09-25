@@ -43,6 +43,7 @@ dependencies:
   image_picker:
   lucide_icons_flutter: ^3.1.20
   flutter_zoom_drawer: ^3.2.0
+  fl_chart: ^0.68.0
 
 dev_dependencies:
   flutter_test:

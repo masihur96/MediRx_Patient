@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -341,28 +342,7 @@ class _DashboardHomeView extends StatelessWidget {
                   ?.copyWith(fontSize: 18),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 130,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildVitalCard(context, 'Heart Rate', '72 bpm',
-                      LucideIcons.heart, Colors.red[50]!, Colors.red),
-                  const SizedBox(width: 12),
-                  _buildVitalCard(context, 'Blood Pressure', '120/80',
-                      LucideIcons.activity, Colors.blue[50]!, Colors.blue),
-                  const SizedBox(width: 12),
-                  _buildVitalCard(context, 'SpO2', '98%',
-                      LucideIcons.wind, Colors.cyan[50]!, Colors.cyan),
-                  const SizedBox(width: 12),
-                  _buildVitalCard(context, 'Blood Glucose', '95 mg/dL',
-                      LucideIcons.droplet, Colors.purple[50]!, Colors.purple),
-                  const SizedBox(width: 12),
-                  _buildVitalCard(context, 'Temperature', '36.5 °C',
-                      LucideIcons.thermometer, Colors.orange[50]!, Colors.orange),
-                ],
-              ),
-            ),
+            _buildVitalsChart(context),
             const SizedBox(height: 32),
 
             // Today's Medication Section
@@ -738,6 +718,221 @@ class _DashboardHomeView extends StatelessWidget {
               style: TextStyle(fontSize: 12, color: Colors.grey[700])),
         ],
       ),
+    );
+  }
+
+  Widget _buildVitalsChart(BuildContext context) {
+    return Container(
+      height: 320,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Vitals Trend (Last 7 Days)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          // Legend
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              _buildLegendItem('HR (60-100)', Colors.red),
+              _buildLegendItem('BP Sys (90-120)', Colors.blue),
+              _buildLegendItem('SpO2 (95-100%)', Colors.cyan),
+              _buildLegendItem('Glucose (70-100)', Colors.purple),
+              _buildLegendItem('Temp (36.5-37.5)', Colors.orange),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: 6,
+                minY: 20,
+                maxY: 140,
+                lineTouchData: const LineTouchData(enabled: true),
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        const style = TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        );
+                        int dayNumber = value.toInt() + 1;
+                        if (dayNumber >= 1 && dayNumber <= 7) {
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            space: 4,
+                            child: Text('Day $dayNumber', style: style),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: 30,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                ),
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    HorizontalLine(
+                      y: 120,
+                      color: Colors.blue.withOpacity(0.5),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'Normal BP', style: const TextStyle(fontSize: 9, color: Colors.blue)),
+                    ),
+                    HorizontalLine(
+                      y: 100,
+                      color: Colors.purple.withOpacity(0.5),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'Normal Glucose', style: const TextStyle(fontSize: 9, color: Colors.purple)),
+                    ),
+                    HorizontalLine(
+                      y: 95,
+                      color: Colors.cyan.withOpacity(0.5),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(show: true, alignment: Alignment.bottomRight, padding: const EdgeInsets.only(right: 5, top: 5), labelResolver: (_) => 'Normal SpO2', style: const TextStyle(fontSize: 9, color: Colors.cyan)),
+                    ),
+                    HorizontalLine(
+                      y: 80,
+                      color: Colors.red.withOpacity(0.5),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'Avg HR', style: const TextStyle(fontSize: 9, color: Colors.red)),
+                    ),
+                    HorizontalLine(
+                      y: 37,
+                      color: Colors.orange.withOpacity(0.5),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'Normal Temp', style: const TextStyle(fontSize: 9, color: Colors.orange)),
+                    ),
+                  ],
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 30,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey[300],
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                    );
+                  },
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  // Heart Rate
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 72), FlSpot(1, 75), FlSpot(2, 71),
+                      FlSpot(3, 78), FlSpot(4, 73), FlSpot(5, 70), FlSpot(6, 72),
+                    ],
+                    isCurved: true,
+                    color: Colors.red,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                  ),
+                  // Blood Pressure
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 120), FlSpot(1, 118), FlSpot(2, 122),
+                      FlSpot(3, 119), FlSpot(4, 125), FlSpot(5, 121), FlSpot(6, 120),
+                    ],
+                    isCurved: true,
+                    color: Colors.blue,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                  ),
+                  // SpO2
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 98), FlSpot(1, 97), FlSpot(2, 99),
+                      FlSpot(3, 98), FlSpot(4, 98), FlSpot(5, 99), FlSpot(6, 98),
+                    ],
+                    isCurved: true,
+                    color: Colors.cyan,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                  ),
+                  // Glucose
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 95), FlSpot(1, 105), FlSpot(2, 92),
+                      FlSpot(3, 110), FlSpot(4, 98), FlSpot(5, 88), FlSpot(6, 95),
+                    ],
+                    isCurved: true,
+                    color: Colors.purple,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                  ),
+                  // Temperature
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 36.5), FlSpot(1, 36.6), FlSpot(2, 36.4),
+                      FlSpot(3, 36.7), FlSpot(4, 37.0), FlSpot(5, 36.5), FlSpot(6, 36.5),
+                    ],
+                    isCurved: true,
+                    color: Colors.orange,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+      ],
     );
   }
 
