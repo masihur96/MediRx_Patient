@@ -31,9 +31,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  google_fonts: ^8.2.1
+  google_fonts:
   provider: ^6.1.2
-  animations: ^3.0.0
+  animations:
   intl:
   flutter_localization: ^0.4.1
 
@@ -68,8 +68,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
-  #   - images/a_dot_ham.jpeg
+    - assets/icon/
+    - assets/
+
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
