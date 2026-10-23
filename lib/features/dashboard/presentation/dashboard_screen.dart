@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../ai_assistant/presentation/ai_assistant_screen.dart';
+import '../../blood_bank/presentation/blood_bank_screen.dart';
 import '../../medication/presentation/medication_screen.dart';
 import '../../menstrual_cycle/presentation/menstrual_cycle_screen.dart';
 import '../../nearest_medical/presentation/nearest_medical_screen.dart';
@@ -249,6 +250,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     l10n.translate('doctor_rating'),
                     Colors.indigo,
                     const DoctorRatingScreen()),
+                _buildDrawerNavigateItem(
+                    Icons.bloodtype_rounded,
+                    'Blood Bank',
+                    Colors.red,
+                    const BloodBankScreen()),
                 const Divider(),
                 _buildDrawerNavigateItem(
                     LucideIcons.settings,
@@ -415,6 +421,14 @@ class _DashboardHomeView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (_) => const DoctorRatingScreen()));
+                }),
+                _buildModuleCard(
+                    context, 'Blood Bank', Icons.bloodtype_rounded, Colors.red,
+                    onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const BloodBankScreen()));
                 }),
               ],
             ),

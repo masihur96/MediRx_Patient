@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/logo_widget.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
 import '../../doctor/presentation/doctor_dashboard_screen.dart';
+import 'forgot_password_screen.dart';
 import 'otp_verification_screen.dart';
 import 'register_screen.dart';
 
@@ -215,11 +216,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  // ── Forgot Password ────────────────────────────────────
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            pageBuilder: (_, animation, __) =>
+                                const ForgotPasswordScreen(),
+                            transitionsBuilder: (_, animation, __, child) =>
+                                SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 1),
+                                end: Offset.zero,
+                              ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeInOut)),
+                              child: child,
+                            ),
+                            transitionDuration:
+                                const Duration(milliseconds: 350),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Forgot Password?',
                         style: TextStyle(
