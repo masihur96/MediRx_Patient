@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/logo_widget.dart';
 import 'onboarding_screen.dart';
@@ -31,23 +33,13 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
             // Logo
             MediRxLogo(
               size: 120,
               showText: false,
               color: Colors.white,
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'MediRx',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Spacer(),
+
             // Bottom text
             Padding(
               padding: const EdgeInsets.only(bottom: 40.0),
