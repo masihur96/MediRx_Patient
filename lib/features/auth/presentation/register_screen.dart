@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/widgets/logo_widget.dart';
+import 'package:provider/provider.dart';
+
+import '../../../configs/route_generator.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/string_utils.dart';
+import '../../../shared/widgets/app_snackbar.dart';
+import 'viewmodels/auth_viewmodel.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,38 +15,152 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  int _selectedRoleIndex = 1; // Default to Patient
+  final _formKey = GlobalKey<FormState>();
+
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _bmdcController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _mobileController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  int _selectedRoleIndex = 1; // Default: 0 = Doctor, 1 = Patient
   final List<String> _roles = ['Doctor', 'Patient'];
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
+  bool _isSubmitting = false;
 
-  Widget _buildTextField({
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _bmdcController.dispose();
+    _emailController.dispose();
+    _mobileController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  bool get _isDoctor => _selectedRoleIndex == 0;
+  String get _registrationType => _roles[_selectedRoleIndex];
+
+  Future<void> _handleRegister() async {
+    if (!_agreeToTerms) {
+      AppSnackBar.showError(
+        context,
+        message: 'Please agree to the Terms & Conditions and Privacy Policy.',
+      );
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+
+    final success = await authViewModel.register(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      email: _emailController.text.trim(),
+      mobile: _mobileController.text.trim(),
+      password: _passwordController.text,
+      passwordConfirmation: _confirmPasswordController.text,
+      registrationType: _registrationType,
+      bmdcNumber: _isDoctor ? _bmdcController.text.trim() : null,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
+    if (success) {
+      AppSnackBar.showSuccess(
+        context,
+        message: 'Account created successfully! Welcome to MediRx.',
+      );
+
+      // Navigate to corresponding dashboard or home
+      if (_isDoctor) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          RouteGenerator.doctorHome,
+          (route) => false,
+        );
+      } else {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          RouteGenerator.dashboard,
+          (route) => false,
+        );
+      }
+    } else {
+      final errorMessage = authViewModel.errorMessage ??
+          'Registration failed. Please check your details and try again.';
+      AppSnackBar.showError(context, message: errorMessage);
+    }
+  }
+
+  Widget _buildFormField({
+    required TextEditingController controller,
     required String hintText,
+    TextInputType keyboardType = TextInputType.text,
     bool isPassword = false,
     bool obscureText = false,
     VoidCallback? onToggleVisibility,
+    String? Function(String?)? validator,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
-      child: TextField(
+      child: TextFormField(
+        controller: controller,
         obscureText: obscureText,
+        keyboardType: keyboardType,
+        validator: validator,
+        style: TextStyle(
+          fontSize: 14,
+          color: isDark ? AppColors.textLight : AppColors.textDark,
+        ),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : AppColors.textGray, fontSize: 14),
+          hintStyle: TextStyle(
+            color: isDark ? Colors.grey[400] : AppColors.textGray,
+            fontSize: 14,
+          ),
           filled: true,
-          fillColor: Theme.of(context).colorScheme.surface,
+          fillColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(
+              color: isDark ? Colors.transparent : Colors.grey.shade300,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(
+              color: isDark ? Colors.transparent : Colors.grey.shade300,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primaryTeal),
+            borderSide: const BorderSide(
+              color: AppColors.primaryTeal,
+              width: 1.5,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.errorRed),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           suffixIcon: isPassword
@@ -61,53 +180,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
-            children: [
-              // Top Bar with back button and horizontal logo
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).iconTheme.color, size: 20),
-                      onPressed: () => Navigator.pop(context),
+          children: [
+            // Top Bar with back button and horizontal branding logo
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Theme.of(context).iconTheme.color,
+                      size: 20,
                     ),
-                    const Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.health_and_safety, color: AppColors.primaryTeal, size: 28),
-                          SizedBox(width: 8),
-                          Text(
-                            'Medi',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryTeal,
-                            ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.health_and_safety,
+                          color: AppColors.primaryTeal,
+                          size: 28,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Medi',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryTeal,
                           ),
-                          Text(
-                            'Rx',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.primaryTeal,
-                            ),
+                        ),
+                        Text(
+                          'Rx',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.primaryTeal,
                           ),
-                          SizedBox(width: 40), // Balance the back button
-                        ],
-                      ),
+                        ),
+                        SizedBox(width: 40), // Balance the back button
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            ),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: Form(
+                  key: _formKey,
                   child: Column(
                     children: [
                       Text(
@@ -115,17 +246,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.headlineMedium?.color,
+                          color: isDark ? AppColors.textLight : AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
-                      // Role Selector
+
+                      // Role Selector (Doctor / Patient)
                       Container(
-                        height: 40,
+                        height: 44,
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: AppColors.mint,
-                          borderRadius: BorderRadius.circular(20),
+                          color: isDark ? AppColors.surfaceDark : AppColors.mint,
+                          borderRadius: BorderRadius.circular(22),
                         ),
                         child: Row(
                           children: List.generate(_roles.length, (index) {
@@ -137,18 +269,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     _selectedRoleIndex = index;
                                   });
                                 },
-                                child: Container(
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
                                   decoration: BoxDecoration(
-                                    color: isSelected ? AppColors.lightTeal : Colors.transparent,
+                                    color: isSelected
+                                        ? AppColors.primaryTeal
+                                        : Colors.transparent,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     _roles[index],
                                     style: TextStyle(
-                                      color: isSelected ? Colors.white : AppColors.primaryTeal,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                      fontSize: 12,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : (isDark ? AppColors.textLight : AppColors.primaryTeal),
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ),
@@ -157,14 +296,88 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           }),
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      
-                      // Form Fields
-                      _buildTextField(hintText: 'Full Name'),
-                      if (_selectedRoleIndex == 0) _buildTextField(hintText: 'BMDC Number'),
-                      if (_selectedRoleIndex == 0) _buildTextField(hintText: 'Email Address'),
-                      _buildTextField(hintText: 'Phone Number'),
-                      _buildTextField(
+                      const SizedBox(height: 28),
+
+                      // First Name & Last Name
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _buildFormField(
+                              controller: _firstNameController,
+                              hintText: 'First Name',
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return 'Required';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildFormField(
+                              controller: _lastNameController,
+                              hintText: 'Last Name',
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return 'Required';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // BMDC Number (Only for Doctor)
+                      if (_isDoctor)
+                        _buildFormField(
+                          controller: _bmdcController,
+                          hintText: 'BMDC Number (e.g. AC-54246)',
+                          validator: (val) {
+                            if (_isDoctor && (val == null || val.trim().isEmpty)) {
+                              return 'BMDC number is required for doctors';
+                            }
+                            return null;
+                          },
+                        ),
+
+                      // Email Address
+                      _buildFormField(
+                        controller: _emailController,
+                        hintText: 'Email Address',
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'Please enter your email address.';
+                          }
+                          if (!StringUtils.isValidEmail(val.trim())) {
+                            return 'Please enter a valid email address.';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // Mobile Number
+                      _buildFormField(
+                        controller: _mobileController,
+                        hintText: 'Mobile Number (e.g. 017XXXXXXXX)',
+                        keyboardType: TextInputType.phone,
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'Please enter your mobile number.';
+                          }
+                          if (val.trim().length < 10) {
+                            return 'Enter a valid mobile number.';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // Password
+                      _buildFormField(
+                        controller: _passwordController,
                         hintText: 'Create Password',
                         isPassword: true,
                         obscureText: _obscurePassword,
@@ -173,8 +386,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _obscurePassword = !_obscurePassword;
                           });
                         },
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return 'Please enter a password.';
+                          }
+                          if (val.length < 6) {
+                            return 'Password must be at least 6 characters.';
+                          }
+                          return null;
+                        },
                       ),
-                      _buildTextField(
+
+                      // Confirm Password
+                      _buildFormField(
+                        controller: _confirmPasswordController,
                         hintText: 'Confirm Password',
                         isPassword: true,
                         obscureText: _obscureConfirmPassword,
@@ -183,8 +408,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return 'Please confirm your password.';
+                          }
+                          if (val != _passwordController.text) {
+                            return 'Passwords do not match.';
+                          }
+                          return null;
+                        },
                       ),
-                      
+
                       // Terms & Conditions Checkbox
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,16 +442,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: RichText(
                               text: const TextSpan(
                                 text: 'I agree to the ',
-                                style: TextStyle(color: AppColors.textGray, fontSize: 12),
+                                style: TextStyle(
+                                  color: AppColors.textGray,
+                                  fontSize: 12,
+                                ),
                                 children: [
                                   TextSpan(
                                     text: 'Terms & Conditions',
-                                    style: TextStyle(color: AppColors.primaryTeal, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: AppColors.primaryTeal,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   TextSpan(text: ' and '),
                                   TextSpan(
                                     text: 'Privacy Policy.',
-                                    style: TextStyle(color: AppColors.primaryTeal, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: AppColors.primaryTeal,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -226,40 +469,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Create Account Button
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _agreeToTerms ? () {} : null,
+                          onPressed: (_agreeToTerms && !_isSubmitting)
+                              ? _handleRegister
+                              : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryTeal,
-                            disabledBackgroundColor: AppColors.primaryTeal.withOpacity(0.5),
+                            disabledBackgroundColor:
+                                AppColors.primaryTeal.withValues(alpha: 0.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    valueColor:
+                                        AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Text(
+                                  'Create Account',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Login Link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
                             'Already have an account? ',
-                            style: TextStyle(color: AppColors.textGray, fontSize: 14),
+                            style: TextStyle(
+                              color: AppColors.textGray,
+                              fontSize: 14,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () => Navigator.pop(context),
@@ -279,10 +538,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-
+      ),
     );
   }
 }

@@ -9,10 +9,14 @@ abstract class AuthRepository {
   });
 
   Future<Result<UserEntity>> register({
-    required String fullName,
+    required String firstName,
+    required String lastName,
     required String email,
+    required String mobile,
     required String password,
-    String? phone,
+    required String passwordConfirmation,
+    required String registrationType,
+    String? bmdcNumber,
   });
 
   Future<Result<bool>> logout();

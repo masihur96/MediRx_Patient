@@ -4,16 +4,24 @@ import '../entities/user_entity.dart';
 import '../repositories/auth_repository.dart';
 
 class RegisterParams {
-  final String fullName;
+  final String firstName;
+  final String lastName;
   final String email;
+  final String mobile;
   final String password;
-  final String? phone;
+  final String passwordConfirmation;
+  final String registrationType;
+  final String? bmdcNumber;
 
   const RegisterParams({
-    required this.fullName,
+    required this.firstName,
+    required this.lastName,
     required this.email,
+    required this.mobile,
     required this.password,
-    this.phone,
+    required this.passwordConfirmation,
+    required this.registrationType,
+    this.bmdcNumber,
   });
 }
 
@@ -25,10 +33,14 @@ class RegisterUseCase implements UseCase<Result<UserEntity>, RegisterParams> {
   @override
   Future<Result<UserEntity>> call(RegisterParams params) {
     return _repository.register(
-      fullName: params.fullName,
+      firstName: params.firstName,
+      lastName: params.lastName,
       email: params.email,
+      mobile: params.mobile,
       password: params.password,
-      phone: params.phone,
+      passwordConfirmation: params.passwordConfirmation,
+      registrationType: params.registrationType,
+      bmdcNumber: params.bmdcNumber,
     );
   }
 }

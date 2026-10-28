@@ -2,8 +2,8 @@
 class APIPath {
   APIPath._();
 
-  // Base URLs (can be switched between staging / production)
-  static const String baseUrl = 'https://api.medirx.health/api/v1';
+  // Base URLs
+  static const String baseUrl = 'https://medirx.unipexel.org/api/v1';
   static const String authBaseUrl = '$baseUrl/auth';
   static const String patientBaseUrl = '$baseUrl/patient';
   static const String doctorBaseUrl = '$baseUrl/doctor';

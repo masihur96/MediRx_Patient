@@ -61,20 +61,28 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<bool> register({
-    required String fullName,
+    required String firstName,
+    required String lastName,
     required String email,
+    required String mobile,
     required String password,
-    String? phone,
+    required String passwordConfirmation,
+    required String registrationType,
+    String? bmdcNumber,
   }) async {
     _setLoading(true);
     _errorMessage = null;
 
     final result = await _registerUseCase(
       RegisterParams(
-        fullName: fullName,
+        firstName: firstName,
+        lastName: lastName,
         email: email,
+        mobile: mobile,
         password: password,
-        phone: phone,
+        passwordConfirmation: passwordConfirmation,
+        registrationType: registrationType,
+        bmdcNumber: bmdcNumber,
       ),
     );
 

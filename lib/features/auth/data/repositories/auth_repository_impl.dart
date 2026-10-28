@@ -22,16 +22,21 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
 
-      final token = response['token'] ?? response['accessToken'];
-      final refreshToken = response['refreshToken'];
+      final data = response['data'] is Map<String, dynamic>
+          ? response['data'] as Map<String, dynamic>
+          : response;
+
+      String? token;
+      if (data['tokens'] is Map) {
+        token = data['tokens']['accessToken'] ?? data['tokens']['token'];
+      }
+      token ??= data['accessToken'] ?? data['token'] ?? response['token'];
+
       if (token != null) {
         await StorageService.saveToken(token.toString());
       }
-      if (refreshToken != null) {
-        await StorageService.saveRefreshToken(refreshToken.toString());
-      }
 
-      final userData = response['user'] ?? response['data'] ?? response;
+      final userData = data['user'] ?? response['user'] ?? data;
       final userModel = UserModel.fromJson(userData as Map<String, dynamic>);
       await StorageService.saveUserData(userModel.toJson());
 
@@ -45,25 +50,42 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<UserEntity>> register({
-    required String fullName,
+    required String firstName,
+    required String lastName,
     required String email,
+    required String mobile,
     required String password,
-    String? phone,
+    required String passwordConfirmation,
+    required String registrationType,
+    String? bmdcNumber,
   }) async {
     try {
       final response = await _remoteDataSource.register(
-        fullName: fullName,
+        firstName: firstName,
+        lastName: lastName,
         email: email,
+        mobile: mobile,
         password: password,
-        phone: phone,
+        passwordConfirmation: passwordConfirmation,
+        registrationType: registrationType,
+        bmdcNumber: bmdcNumber,
       );
 
-      final token = response['token'] ?? response['accessToken'];
+      final data = response['data'] is Map<String, dynamic>
+          ? response['data'] as Map<String, dynamic>
+          : response;
+
+      String? token;
+      if (data['tokens'] is Map) {
+        token = data['tokens']['accessToken'] ?? data['tokens']['token'];
+      }
+      token ??= data['accessToken'] ?? data['token'] ?? response['token'];
+
       if (token != null) {
         await StorageService.saveToken(token.toString());
       }
 
-      final userData = response['user'] ?? response['data'] ?? response;
+      final userData = data['user'] ?? response['user'] ?? data;
       final userModel = UserModel.fromJson(userData as Map<String, dynamic>);
       await StorageService.saveUserData(userModel.toJson());
 

@@ -8,10 +8,14 @@ abstract class AuthRemoteDataSource {
   });
 
   Future<Map<String, dynamic>> register({
-    required String fullName,
+    required String firstName,
+    required String lastName,
     required String email,
+    required String mobile,
     required String password,
-    String? phone,
+    required String passwordConfirmation,
+    required String registrationType,
+    String? bmdcNumber,
   });
 
   Future<void> logout();
@@ -52,19 +56,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Map<String, dynamic>> register({
-    required String fullName,
+    required String firstName,
+    required String lastName,
     required String email,
+    required String mobile,
     required String password,
-    String? phone,
+    required String passwordConfirmation,
+    required String registrationType,
+    String? bmdcNumber,
   }) async {
+    final payload = <String, dynamic>{
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'mobile': mobile,
+      'password': password,
+      'password_confirmation': passwordConfirmation,
+      'registration_type': registrationType,
+    };
+    if (registrationType == 'Doctor' && bmdcNumber != null && bmdcNumber.isNotEmpty) {
+      payload['bmdc_number'] = bmdcNumber;
+    }
+
     final response = await _dataProvider.post(
       APIPath.register,
-      data: {
-        'fullName': fullName,
-        'email': email,
-        'password': password,
-        if (phone != null) 'phone': phone,
-      },
+      data: payload,
     );
     return response.data as Map<String, dynamic>;
   }

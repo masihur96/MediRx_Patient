@@ -199,8 +199,25 @@ class DataProvider {
         final statusCode = error.response?.statusCode;
         final data = error.response?.data;
         String message = 'Server error occurred.';
-        if (data is Map && data['message'] != null) {
-          message = data['message'].toString();
+        if (data is Map) {
+          if (data['errors'] is Map && (data['errors'] as Map).isNotEmpty) {
+            final errorsMap = data['errors'] as Map;
+            final List<String> fieldErrors = [];
+            errorsMap.forEach((_, value) {
+              if (value is List && value.isNotEmpty) {
+                fieldErrors.add(value.join(' '));
+              } else if (value != null) {
+                fieldErrors.add(value.toString());
+              }
+            });
+            if (fieldErrors.isNotEmpty) {
+              message = fieldErrors.join('\n');
+            } else if (data['message'] != null) {
+              message = data['message'].toString();
+            }
+          } else if (data['message'] != null) {
+            message = data['message'].toString();
+          }
         } else if (error.message != null) {
           message = error.message!;
         }
