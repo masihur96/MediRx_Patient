@@ -2,17 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'configs/network/connectivity_service.dart';
+import 'configs/route_generator.dart';
+import 'core/constants/app_constants.dart';
+import 'core/di/service_locator.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'features/auth/presentation/splash_screen.dart';
+import 'features/auth/presentation/viewmodels/auth_viewmodel.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Dependency Injection
+  await setupServiceLocator();
+
+  // Initialize Network Connectivity Monitoring
+  await sl<ConnectivityService>().initialize();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocalizationProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => sl<AuthViewModel>()..initAuth()),
       ],
       child: const MediRxApp(),
     ),
@@ -28,7 +41,7 @@ class MediRxApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
-      title: 'Medi Rx',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -45,7 +58,8 @@ class MediRxApp extends StatelessWidget {
       locale: localizationProvider.language == AppLanguage.en
           ? const Locale('en', '')
           : const Locale('bn', ''),
-      home: const SplashScreen(),
+      initialRoute: RouteGenerator.splash,
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }

@@ -46,6 +46,14 @@ dependencies:
   flutter_zoom_drawer: ^3.2.0
   fl_chart: ^0.68.0
 
+  # Architecture & Core Utilities
+  dio: ^5.7.0
+  get_it: ^8.0.3
+  shared_preferences: ^2.3.5
+  flutter_secure_storage: ^9.2.2
+  connectivity_plus: ^6.1.1
+  shimmer: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
