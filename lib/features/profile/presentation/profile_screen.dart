@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:medirx_patient/features/auth/presentation/login_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_snackbar.dart';
-import '../../auth/presentation/login_screen.dart';
 import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../medication/presentation/medication_screen.dart';
 import '../../notification/presentation/notification_screen.dart';
@@ -138,7 +138,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ? user!.phone!.trim()
         : 'No phone number';
 
-    final userInitial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'P';
+    final userInitial =
+        displayName.isNotEmpty ? displayName[0].toUpperCase() : 'P';
     final hasImage = user?.profileImage != null &&
         (user!.profileImage!.startsWith('http://') ||
             user.profileImage!.startsWith('https://'));
@@ -159,27 +160,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            tooltip: 'Refresh Profile',
-            onPressed: _isRefreshing ? null : _refreshProfile,
-            icon: _isRefreshing
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.primaryTeal,
-                    ),
-                  )
-                : const Icon(LucideIcons.refreshCw, size: 20),
-          ),
-          IconButton(
-            tooltip: 'Log Out',
-            onPressed: () => _showLogoutConfirmation(context),
-            icon: const Icon(LucideIcons.logOut, color: AppColors.errorRed, size: 20),
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refreshProfile,
@@ -441,7 +421,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: CircleAvatar(
                       radius: 35,
                       backgroundColor: AppColors.primaryTeal,
-                      backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                      backgroundImage:
+                          hasImage ? NetworkImage(imageUrl!) : null,
                       child: !hasImage
                           ? Text(
                               initial,
@@ -483,7 +464,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).textTheme.headlineMedium?.color,
+                        color:
+                            Theme.of(context).textTheme.headlineMedium?.color,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -497,7 +479,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.successGreen.withValues(alpha: 0.12),
+                            color:
+                                AppColors.successGreen.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
@@ -540,7 +523,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryTeal.withValues(alpha: 0.1),
+                              color:
+                                  AppColors.primaryTeal.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
