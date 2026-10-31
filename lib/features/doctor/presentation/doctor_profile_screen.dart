@@ -10,7 +10,6 @@ import '../../../shared/widgets/shimmer_loaders.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../data/doctor_models.dart';
-import 'doctor_settings_screen.dart';
 import 'viewmodels/doctor_profile_viewmodel.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
@@ -875,32 +874,6 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 borderRadius: BorderRadius.circular(14),
               ),
               elevation: 0,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Settings Button
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const DoctorSettingsScreen()),
-            ),
-            icon: const Icon(LucideIcons.settings, size: 18),
-            label: const Text(
-              'Doctor Panel Settings',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primaryTeal,
-              side: BorderSide(
-                  color: AppColors.primaryTeal.withValues(alpha: 0.4)),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
             ),
           ),
         ),
