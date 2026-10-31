@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/logo_widget.dart';
+import '../../../shared/widgets/app_snackbar.dart';
 import 'forgot_otp_verification_screen.dart';
+import 'viewmodels/auth_viewmodel.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -27,40 +30,55 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   String? _validate(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter your email or phone number.';
+      return 'Please enter your email address.';
     }
     final trimmed = value.trim();
-    final isEmail = trimmed.contains('@') && trimmed.contains('.');
-    final isPhone = RegExp(r'^[+]?[\d\s\-]{7,15}$').hasMatch(trimmed);
-    if (!isEmail && !isPhone) {
-      return 'Enter a valid email address or phone number.';
+    final isEmail = RegExp(r'^[\w\.\-]+@[\w\.\-]+\.[a-zA-Z]{2,}$').hasMatch(trimmed);
+    if (!isEmail) {
+      return 'Please enter a valid email address.';
     }
     return null;
   }
 
   Future<void> _sendOtp() async {
     if (!_formKey.currentState!.validate()) return;
+    final email = _identifierController.text.trim();
+
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+
+    final authViewModel = context.read<AuthViewModel>();
+    final success = await authViewModel.forgotPassword(email: email);
+
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (_, animation, __) => ForgotOtpVerificationScreen(
-          identifier: _identifierController.text.trim(),
-          isEmail: _isEmail,
+    if (success) {
+      final msg = authViewModel.successMessage ??
+          'We have emailed your password reset link!';
+      AppSnackBar.showSuccess(context, message: msg);
+
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (_, animation, __) => ForgotOtpVerificationScreen(
+            identifier: email,
+            isEmail: true,
+          ),
+          transitionsBuilder: (_, animation, __, child) => SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+            child: child,
+          ),
+          transitionDuration: const Duration(milliseconds: 350),
         ),
-        transitionsBuilder: (_, animation, __, child) => SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-          child: child,
-        ),
-        transitionDuration: const Duration(milliseconds: 350),
-      ),
-    );
+      );
+    } else {
+      final errorMsg = authViewModel.errorMessage ??
+          "We can't find a user with that email address.";
+      AppSnackBar.showError(context, message: errorMsg);
+    }
   }
 
   @override
@@ -118,7 +136,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'No worries! Enter your email or phone number\nand we\'ll send you a verification code.',
+                    'No worries! Enter your registered email address\nand we\'ll send you a password reset link.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -135,7 +153,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     validator: _validate,
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Email or Phone Number',
+                      hintText: 'Enter your email address',
                       hintStyle: TextStyle(
                         color: isDark ? Colors.grey[400] : AppColors.textGray,
                         fontSize: 14,

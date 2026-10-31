@@ -18,6 +18,7 @@ import '../../rating/presentation/doctor_rating_screen.dart';
 import '../../scheduling/presentation/scheduling_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../vaccine/presentation/vaccine_screen.dart';
+import '../presentation/viewmodels/dashboard_viewmodel.dart';
 
 class MedicationTask {
   final String id;
@@ -45,14 +46,13 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
-  final List<MedicationTask> _todayMeds = [
-    MedicationTask(
-        id: '1', name: 'Atorvastatin', dosage: '10mg', time: '08:00 AM'),
-    MedicationTask(
-        id: '2', name: 'Metformin', dosage: '500mg', time: '01:00 PM'),
-    MedicationTask(
-        id: '3', name: 'Vitamin D3', dosage: '2000 IU', time: '08:00 PM'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardViewModel>().fetchDashboardOverview();
+    });
+  }
 
   String _getAppBarTitle(BuildContext context, LocalizationProvider l10n) {
     switch (_selectedIndex) {
@@ -98,21 +98,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
   }
 
-  void _toggleMedStatus(String id) {
-    setState(() {
-      final med = _todayMeds.firstWhere((m) => m.id == id);
-      med.isTaken = !med.isTaken;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = Provider.of<LocalizationProvider>(context);
 
     final screens = [
       _DashboardHomeView(
-        todayMeds: _todayMeds,
-        onToggleMedStatus: _toggleMedStatus,
         onViewAllTap: () => setState(() => _selectedIndex = 1),
       ),
       const MedicationScreen(isTab: true),
@@ -304,13 +295,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _DashboardHomeView extends StatelessWidget {
-  final List<MedicationTask> todayMeds;
-  final Function(String) onToggleMedStatus;
   final VoidCallback onViewAllTap;
 
   const _DashboardHomeView({
-    required this.todayMeds,
-    required this.onToggleMedStatus,
     required this.onViewAllTap,
   });
 
@@ -318,41 +305,70 @@ class _DashboardHomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = Provider.of<LocalizationProvider>(context);
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome Text
+    return Consumer<DashboardViewModel>(
+      builder: (context, dashVm, _) {
+        final greeting = dashVm.patient?['greeting']?.toString() ??
+            'Welcome back!';
+        final healthId = dashVm.patient?['healthId']?.toString() ?? '';
+        final adherence = dashVm.adherenceRate;
+        final stats = dashVm.quickStats;
+        final todayMeds = dashVm.todayMedications;
 
-            const SizedBox(height: 16),
-            _buildVitalsChart(context),
-            const SizedBox(height: 32),
+        return RefreshIndicator(
+          onRefresh: () => dashVm.refresh(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Greeting card
+                  _buildGreetingCard(context, greeting, healthId, adherence),
+                  const SizedBox(height: 20),
 
-            // Today's Medication Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Today\'s Medication',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(fontSize: 18),
-                ),
-                TextButton(
-                  onPressed: onViewAllTap,
-                  child: const Text('View All'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...todayMeds.map((med) => _buildTodayMedCard(context, med)),
+                  // Quick Stats
+                  if (stats != null) ...[
+                    _buildQuickStats(context, stats),
+                    const SizedBox(height: 24),
+                  ],
 
-            const SizedBox(height: 32),
+                  _buildVitalsChart(context),
+                  const SizedBox(height: 28),
 
-            // Medication History Heatmap
+                  // Today's Medication Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Today's Medication",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(fontSize: 18),
+                      ),
+                      TextButton(
+                        onPressed: onViewAllTap,
+                        child: const Text('View All'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  if (dashVm.isLoading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (todayMeds.isEmpty)
+                    _buildNoMedsCard(context)
+                  else
+                    ...todayMeds.map((med) =>
+                        _buildLiveMedCard(context, med as Map<String, dynamic>)),
+
+                  const SizedBox(height: 32),
+
+                  // Medication History Heatmap
             Text(
               'Medication History',
               style: Theme.of(context)
@@ -432,14 +448,174 @@ class _DashboardHomeView extends StatelessWidget {
                 }),
               ],
             ),
-            const SizedBox(height: 32),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGreetingCard(BuildContext context, String greeting,
+      String healthId, num adherence) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primaryTeal, Color(0xFF0E9E8E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            greeting,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (healthId.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text('Health ID: $healthId',
+                style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
+          ],
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              const Icon(LucideIcons.activity,
+                  color: Colors.white, size: 16),
+              const SizedBox(width: 8),
+              Text('Adherence: ${adherence.toStringAsFixed(0)}%',
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: adherence / 100,
+              backgroundColor: Colors.white.withValues(alpha: 0.3),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              minHeight: 6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickStats(
+      BuildContext context, Map<String, dynamic> stats) {
+    return Row(
+      children: [
+        _buildStatChip(
+          context,
+          LucideIcons.fileText,
+          '${stats['activePrescriptions'] ?? 0}',
+          'Prescriptions',
+          AppColors.primaryTeal,
+        ),
+        const SizedBox(width: 10),
+        _buildStatChip(
+          context,
+          LucideIcons.calendar,
+          '${stats['upcomingAppointments'] ?? 0}',
+          'Appointments',
+          Colors.blue,
+        ),
+        const SizedBox(width: 10),
+        _buildStatChip(
+          context,
+          LucideIcons.syringe,
+          '${stats['pendingVaccinations'] ?? 0}',
+          'Vaccines',
+          Colors.amber,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatChip(BuildContext context, IconData icon, String value,
+      String label, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 6),
+            Text(value,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: color)),
+            Text(label,
+                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTodayMedCard(BuildContext context, MedicationTask med) {
+  Widget _buildNoMedsCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.green.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+      ),
+      child: const Row(
+        children: [
+          Icon(LucideIcons.checkCircle, color: Colors.green, size: 28),
+          SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("You're all done!",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.green)),
+                Text("No medications scheduled for today.",
+                    style: TextStyle(fontSize: 12, color: Colors.green)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveMedCard(
+      BuildContext context, Map<String, dynamic> med) {
+    final name = med['medicine_name']?.toString() ??
+        med['medicineName']?.toString() ??
+        med['name']?.toString() ??
+        'Medication';
+    final dose = med['dosage']?.toString() ??
+        med['dose']?.toString() ??
+        '';
+    final scheduledTime = med['scheduled_time']?.toString() ??
+        med['time']?.toString() ??
+        '';
+    final status = med['status']?.toString() ?? 'pending';
+    final isTaken = status == 'taken';
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -454,13 +630,15 @@ class _DashboardHomeView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: med.isTaken
-                    ? AppColors.primaryTeal.withOpacity(0.1)
+                color: isTaken
+                    ? AppColors.primaryTeal.withValues(alpha: 0.1)
                     : Colors.grey[100],
                 shape: BoxShape.circle,
               ),
               child: Icon(LucideIcons.pill,
-                  color: med.isTaken ? AppColors.primaryTeal : Colors.grey[400],
+                  color: isTaken
+                      ? AppColors.primaryTeal
+                      : Colors.grey[400],
                   size: 20),
             ),
             const SizedBox(width: 16),
@@ -468,25 +646,38 @@ class _DashboardHomeView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(med.name,
+                  Text(name,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         decoration:
-                            med.isTaken ? TextDecoration.lineThrough : null,
-                        color: med.isTaken 
-                          ? Colors.grey 
-                          : Theme.of(context).textTheme.bodyLarge?.color,
+                            isTaken ? TextDecoration.lineThrough : null,
+                        color: isTaken
+                            ? Colors.grey
+                            : Theme.of(context).textTheme.bodyLarge?.color,
                       )),
-                  Text('${med.dosage} • ${med.time}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                  Text(
+                    [if (dose.isNotEmpty) dose, if (scheduledTime.isNotEmpty) scheduledTime]
+                        .join(' • '),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () => onToggleMedStatus(med.id),
-              icon: Icon(
-                med.isTaken ? LucideIcons.checkCircle2 : LucideIcons.circle,
-                color: med.isTaken ? AppColors.primaryTeal : Colors.grey[300],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isTaken
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                isTaken ? 'Taken' : 'Pending',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isTaken ? Colors.green : Colors.orange,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

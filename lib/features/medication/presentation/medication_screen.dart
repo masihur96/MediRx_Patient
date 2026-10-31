@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import 'scan_prescription_screen.dart';
 import 'e_prescription_screen.dart';
 import 'add_prescription_screen.dart';
+import 'viewmodels/medication_viewmodel.dart';
 
 class MedicationScreen extends StatefulWidget {
   final bool isTab;
@@ -33,7 +35,7 @@ class MedicationScreen extends StatefulWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryTeal.withOpacity(0.1),
+                    color: AppColors.primaryTeal.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(LucideIcons.scanLine,
@@ -55,10 +57,10 @@ class MedicationScreen extends StatefulWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceDark.withOpacity(0.1),
+                    color: AppColors.surfaceDark.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(LucideIcons.fileDigit,
+                  child: const Icon(LucideIcons.fileDigit,
                       color: AppColors.surfaceDark),
                 ),
                 title: const Text('E-Prescription'),
@@ -77,7 +79,7 @@ class MedicationScreen extends StatefulWidget {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(LucideIcons.filePlus, color: Colors.green),
@@ -110,6 +112,9 @@ class _MedicationScreenState extends State<MedicationScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MedicationViewModel>().init();
+    });
   }
 
   @override
@@ -177,81 +182,202 @@ class _MedicationScreenState extends State<MedicationScreen>
   }
 
   Widget _buildMedicationsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        _buildSectionHeader('Current Medications'),
-        const SizedBox(height: 16),
-        _buildMedicationCard(
-          'Atorvastatin',
-          '10mg - Once daily',
-          'Before Bed',
-          LucideIcons.pill,
-          Colors.blue,
-        ),
-        const SizedBox(height: 16),
-        _buildMedicationCard(
-          'Metformin',
-          '500mg - Twice daily',
-          'After Meal',
-          LucideIcons.tablet,
-          Colors.green,
-        ),
-        const SizedBox(height: 32),
-        _buildSectionHeader('Refills Needed'),
-        const SizedBox(height: 16),
-        _buildMedicationCard(
-          'Vitamin D3',
-          '2000 IU',
-          '2 days left',
-          LucideIcons.pill,
-          Colors.orange,
-          isWarning: true,
-        ),
-      ],
+    return Consumer<MedicationViewModel>(
+      builder: (context, vm, _) {
+        if (vm.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final meds = vm.medications;
+
+        return RefreshIndicator(
+          onRefresh: () => vm.fetchMedications(),
+          child: meds.isEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    const SizedBox(height: 60),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.pill,
+                              size: 64, color: Colors.grey[300]),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No active medications',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Your prescribed medications will appear here.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () =>
+                                MedicationScreen.showAddPrescriptionOptions(
+                                    context),
+                            icon: const Icon(LucideIcons.plus, size: 18),
+                            label: const Text('Add Prescription'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryTeal,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: meds.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildSectionHeader(
+                            'Current Medications (${meds.length})'),
+                      );
+                    }
+                    final med = meds[index - 1] as Map<String, dynamic>;
+                    final name = med['medicine_name']?.toString() ??
+                        med['name']?.toString() ??
+                        'Medication';
+                    final dosage = med['dosage']?.toString() ??
+                        med['instructions']?.toString() ??
+                        '';
+                    final frequency = med['frequency']?.toString() ??
+                        med['duration']?.toString() ??
+                        'Daily';
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildMedicationCard(
+                        name,
+                        dosage.isNotEmpty ? dosage : frequency,
+                        frequency,
+                        LucideIcons.pill,
+                        AppColors.primaryTeal,
+                      ),
+                    );
+                  },
+                ),
+        );
+      },
     );
   }
 
   Widget _buildPrescriptionsTab() {
-    // Mock prescription data
-    final prescriptions = [
-      {
-        'doctor': 'Dr. Sarah Ahmed',
-        'date': '05 Feb 2026',
-        'diagnosis': 'Hypertension',
-        'medications': 3,
-      },
-      {
-        'doctor': 'Dr. John Smith',
-        'date': '28 Jan 2026',
-        'diagnosis': 'Type 2 Diabetes',
-        'medications': 2,
-      },
-      {
-        'doctor': 'Dr. Sarah Ahmed',
-        'date': '15 Jan 2026',
-        'diagnosis': 'Vitamin Deficiency',
-        'medications': 1,
-      },
-    ];
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: prescriptions.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _buildSectionHeader('Prescription History'),
-          );
+    return Consumer<MedicationViewModel>(
+      builder: (context, vm, _) {
+        if (vm.isLoading) {
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final prescription = prescriptions[index - 1];
-        return _buildPrescriptionCard(
-          prescription['doctor'] as String,
-          prescription['date'] as String,
-          prescription['diagnosis'] as String,
-          prescription['medications'] as int,
+        final prescriptions = vm.prescriptions;
+
+        return RefreshIndicator(
+          onRefresh: () => vm.fetchPrescriptions(),
+          child: prescriptions.isEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    const SizedBox(height: 60),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.fileText,
+                              size: 64, color: Colors.grey[300]),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No prescriptions found',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Add a prescription by scanning or entering code.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () =>
+                                MedicationScreen.showAddPrescriptionOptions(
+                                    context),
+                            icon: const Icon(LucideIcons.plus, size: 18),
+                            label: const Text('Add Prescription'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryTeal,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: prescriptions.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildSectionHeader(
+                            'Prescription History (${prescriptions.length})'),
+                      );
+                    }
+
+                    final prescription =
+                        prescriptions[index - 1] as Map<String, dynamic>;
+                    final doctor = prescription['doctor_name']?.toString() ??
+                        prescription['doctor']?.toString() ??
+                        'Dr. Verified';
+                    final date = prescription['created_at']?.toString() ??
+                        prescription['date']?.toString() ??
+                        '';
+                    final diagnosis =
+                        prescription['diagnosis']?.toString() ??
+                            prescription['chief_complaint']?.toString() ??
+                            'General Consultation';
+                    final medCount = (prescription['medications'] is List)
+                        ? (prescription['medications'] as List).length
+                        : (prescription['items_count'] ?? 1) as int;
+
+                    return _buildPrescriptionCard(
+                      doctor,
+                      date.length > 10 ? date.substring(0, 10) : date,
+                      diagnosis,
+                      medCount,
+                    );
+                  },
+                ),
         );
       },
     );
@@ -269,12 +395,14 @@ class _MedicationScreenState extends State<MedicationScreen>
       {bool isWarning = false}) {
     return Card(
       elevation: 0,
-      color: isWarning ? AppColors.errorRed.withOpacity(0.05) : Colors.white,
+      color: isWarning
+          ? AppColors.errorRed.withValues(alpha: 0.05)
+          : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
             color: isWarning
-                ? AppColors.errorRed.withOpacity(0.2)
+                ? AppColors.errorRed.withValues(alpha: 0.2)
                 : Colors.grey[200]!),
       ),
       child: Padding(
@@ -284,7 +412,7 @@ class _MedicationScreenState extends State<MedicationScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -327,9 +455,8 @@ class _MedicationScreenState extends State<MedicationScreen>
       ),
       child: InkWell(
         onTap: () {
-          // Navigate to prescription details
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Prescription details coming soon')),
+            const SnackBar(content: Text('Prescription details')),
           );
         },
         borderRadius: BorderRadius.circular(16),
@@ -340,7 +467,7 @@ class _MedicationScreenState extends State<MedicationScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryTeal.withOpacity(0.1),
+                  color: AppColors.primaryTeal.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(LucideIcons.fileText,
