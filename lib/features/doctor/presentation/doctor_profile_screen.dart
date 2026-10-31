@@ -132,12 +132,20 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
     final doctorName = _formatDoctorName(rawName, 'Dr. Doctor');
     final initials = _getInitials(rawName);
 
-    final imageUrl =
+    final rawImage =
         (profile.profileImage != null && profile.profileImage!.isNotEmpty)
             ? profile.profileImage
             : authUser?.profileImage;
-    final hasImage = imageUrl != null &&
-        (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
+
+    final imageUrl = rawImage != null && rawImage.isNotEmpty
+        ? (rawImage.startsWith('http')
+            ? rawImage
+            : (rawImage.startsWith('/')
+                ? 'https://medirx.unipexel.org$rawImage'
+                : 'https://medirx.unipexel.org/$rawImage'))
+        : null;
+
+    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
     final doctorId = profile.uuid ??
         (profile.id.isNotEmpty

@@ -240,6 +240,7 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
       },
       'active': _active ? '1' : '0',
       'featured': _featured ? '1' : '0',
+      if (_selectedImage != null) 'profile_image': _selectedImage!.path,
     };
 
     final viewModel = context.read<DoctorProfileViewModel>();
@@ -546,52 +547,109 @@ class _DoctorEditProfileScreenState extends State<DoctorEditProfileScreen> {
 
   Widget _buildAvatarSection() {
     final hasLocal = _selectedImage != null;
-    final hasNetwork = widget.profile.profileImage != null &&
-        (widget.profile.profileImage!.startsWith('http://') ||
-            widget.profile.profileImage!.startsWith('https://'));
+    final rawNetwork = widget.profile.profileImage;
+    final hasNetwork = rawNetwork != null && rawNetwork.isNotEmpty;
+    final resolvedNetwork = hasNetwork
+        ? (rawNetwork.startsWith('http')
+            ? rawNetwork
+            : (rawNetwork.startsWith('/')
+                ? 'https://medirx.unipexel.org$rawNetwork'
+                : 'https://medirx.unipexel.org/$rawNetwork'))
+        : null;
 
     return Center(
-      child: Stack(
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.3), width: 2),
-            ),
-            child: CircleAvatar(
-              radius: 54,
-              backgroundColor: AppColors.primaryTeal.withValues(alpha: 0.1),
-              backgroundImage: hasLocal
-                  ? FileImage(_selectedImage!) as ImageProvider
-                  : (hasNetwork ? NetworkImage(widget.profile.profileImage!) : null),
-              child: (!hasLocal && !hasNetwork)
-                  ? const Icon(LucideIcons.user, size: 48, color: AppColors.primaryTeal)
-                  : null,
-            ),
-          ),
-          Positioned(
-            bottom: 4,
-            right: 4,
-            child: GestureDetector(
-              onTap: _showImagePickerSheet,
-              child: Container(
-                padding: const EdgeInsets.all(8),
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryTeal,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 6,
-                    ),
-                  ],
+                  border: Border.all(
+                    color: AppColors.primaryTeal.withValues(alpha: 0.3),
+                    width: 2,
+                  ),
                 ),
-                child: const Icon(LucideIcons.camera, color: Colors.white, size: 16),
+                child: CircleAvatar(
+                  radius: 54,
+                  backgroundColor: AppColors.primaryTeal.withValues(alpha: 0.1),
+                  backgroundImage: hasLocal
+                      ? FileImage(_selectedImage!) as ImageProvider
+                      : (resolvedNetwork != null
+                          ? NetworkImage(resolvedNetwork)
+                          : null),
+                  child: (!hasLocal && resolvedNetwork == null)
+                      ? const Icon(LucideIcons.user, size: 48, color: AppColors.primaryTeal)
+                      : null,
+                ),
+              ),
+              Positioned(
+                bottom: 2,
+                right: 2,
+                child: GestureDetector(
+                  onTap: _showImagePickerSheet,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryTeal,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(LucideIcons.camera, color: Colors.white, size: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton.icon(
+                onPressed: _showImagePickerSheet,
+                icon: const Icon(LucideIcons.image, size: 14),
+                label: Text(
+                  hasLocal ? 'Change Photo' : 'Upload Profile Photo',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primaryTeal,
+                  side: BorderSide(color: AppColors.primaryTeal.withValues(alpha: 0.4)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+              if (hasLocal) ...[
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.errorRed),
+                  tooltip: 'Remove selected photo',
+                  onPressed: () => setState(() => _selectedImage = null),
+                ),
+              ],
+            ],
+          ),
+          if (hasLocal)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Ready to upload: ${_selectedImage!.path.split(Platform.pathSeparator).last}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.successGreen,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

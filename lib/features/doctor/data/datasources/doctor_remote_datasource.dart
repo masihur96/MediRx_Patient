@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../../configs/network/data_provider.dart';
 import '../../../../core/constants/apis.dart';
@@ -82,9 +83,19 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
     final formData = FormData();
     formData.fields.add(const MapEntry('_method', 'PUT'));
 
+    String? activeImagePath = imagePath;
+    if (activeImagePath == null || activeImagePath.isEmpty) {
+      final imgVal = data['profile_image'];
+      if (imgVal is String && imgVal.isNotEmpty && !imgVal.startsWith('http')) {
+        activeImagePath = imgVal;
+      }
+    }
+
     for (final entry in data.entries) {
       final key = entry.key;
       final value = entry.value;
+
+      if (key == 'profile_image') continue;
 
       if (value is List) {
         for (final item in value) {
@@ -103,11 +114,18 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
       }
     }
 
-    if (imagePath != null && imagePath.isNotEmpty) {
-      formData.files.add(MapEntry(
-        'profile_image',
-        await MultipartFile.fromFile(imagePath),
-      ));
+    if (activeImagePath != null && activeImagePath.isNotEmpty) {
+      final file = File(activeImagePath);
+      if (await file.exists()) {
+        final fileName = activeImagePath.split(Platform.pathSeparator).last;
+        formData.files.add(MapEntry(
+          'profile_image',
+          await MultipartFile.fromFile(
+            activeImagePath,
+            filename: fileName,
+          ),
+        ));
+      }
     }
 
     final response = await _dataProvider.post(
