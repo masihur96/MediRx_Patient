@@ -10,6 +10,7 @@ import '../../../shared/widgets/shimmer_loaders.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../data/doctor_models.dart';
+import 'doctor_edit_profile_screen.dart';
 import 'viewmodels/doctor_profile_viewmodel.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
@@ -172,6 +173,10 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 _buildStatsRow(context, profile),
                 const SizedBox(height: 16),
 
+                // Incomplete Profile Prompt
+                if (profile.bio.isEmpty || profile.qualification.isEmpty)
+                  _buildProfileCompletionCard(context, profile),
+
                 // Professional Clinical Details
                 _buildProfessionalDetailsCard(context, profile, authUser),
                 const SizedBox(height: 16),
@@ -193,7 +198,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 const SizedBox(height: 24),
 
                 // Action Buttons (Edit Profile, Settings, Logout)
-                _buildActionButtons(context),
+                _buildActionButtons(context, profile),
               ],
             ),
           ),
@@ -491,6 +496,74 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
   }
 
   // ─── Profile Completion Prompt ─────────────────────────────────────────────
+
+  Widget _buildProfileCompletionCard(BuildContext context, DoctorProfile profile) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFFE082)),
+      ),
+      child: Row(
+        children: [
+          const Icon(LucideIcons.sparkles, color: Color(0xFFF57F17), size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Complete Your Professional Profile',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: Color(0xFFE65100),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Add degrees, hospital affiliations, and biography to enhance patient trust.',
+                  style: TextStyle(fontSize: 11, color: Colors.grey[800]),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          TextButton(
+            onPressed: () async {
+              final updated = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DoctorEditProfileScreen(
+                    profile: profile,
+                    doctorId: _resolveDoctorId(),
+                  ),
+                ),
+              );
+              if (updated == true) {
+                _refreshProfile();
+              }
+            },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Add Now',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Color(0xFFE65100),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // ─── Professional Clinical Details Card ────────────────────────────────────
 
@@ -835,6 +908,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             canCopy: true),
         _infoRow(context, LucideIcons.phone, 'Phone Number', phone,
             canCopy: true),
+        _infoRow(context, LucideIcons.hash, 'Account ID', accountId,
+            canCopy: true),
         if (profile.gender != null && profile.gender!.isNotEmpty)
           _infoRow(context, LucideIcons.user, 'Gender',
               profile.gender![0].toUpperCase() + profile.gender!.substring(1)),
@@ -847,17 +922,27 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
   // ─── Action Buttons ────────────────────────────────────────────────────────
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, DoctorProfile profile) {
     return Column(
       children: [
         // Edit Profile
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Doctor profile editing coming soon')),
-            ),
+            onPressed: () async {
+              final updated = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DoctorEditProfileScreen(
+                    profile: profile,
+                    doctorId: _resolveDoctorId(),
+                  ),
+                ),
+              );
+              if (updated == true) {
+                _refreshProfile();
+              }
+            },
             icon: const Icon(LucideIcons.edit3, color: Colors.white, size: 18),
             label: const Text(
               'Edit Professional Profile',

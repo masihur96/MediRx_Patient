@@ -89,11 +89,13 @@ class DoctorExperience {
 class DoctorSocial {
   final String? facebook;
   final String? linkedin;
+  final String? twitter;
   final String? youtube;
 
   const DoctorSocial({
     this.facebook,
     this.linkedin,
+    this.twitter,
     this.youtube,
   });
 
@@ -101,6 +103,7 @@ class DoctorSocial {
     return DoctorSocial(
       facebook: json['facebook']?.toString(),
       linkedin: json['linkedin']?.toString(),
+      twitter: json['twitter']?.toString(),
       youtube: json['youtube']?.toString(),
     );
   }
@@ -108,6 +111,7 @@ class DoctorSocial {
   Map<String, dynamic> toJson() => {
         'facebook': facebook,
         'linkedin': linkedin,
+        'twitter': twitter,
         'youtube': youtube,
       };
 }

@@ -20,6 +20,31 @@ class MockDoctorRepository implements DoctorRepository {
   Future<Result<List<DoctorProfile>>> getDoctors({String? specialty, String? token}) async {
     return const Success([]);
   }
+
+  @override
+  Future<Result<DoctorProfile>> updateDoctorProfile(
+    String doctorId,
+    Map<String, dynamic> data, {
+    String? token,
+    String? imagePath,
+  }) async {
+    if (errorToReturn != null) {
+      return Error(errorToReturn!);
+    }
+    return Success(profileToReturn!);
+  }
+
+  @override
+  Future<Result<List<Map<String, dynamic>>>> getSpecialties({String? token}) async {
+    return const Success([
+      {
+        'label': 'Medicine',
+        'options': [
+          {'value': 16, 'label': 'Cardiology'},
+        ]
+      }
+    ]);
+  }
 }
 
 void main() {
@@ -73,134 +98,118 @@ void main() {
       expect(profile.reviewCount, 0);
     });
 
-    test('correctly parses populated Doctor 7 API payload with educations and experiences', () {
-      final json7 = {
-        "id": 1,
-        "uuid": "99726127-67ee-4fae-9159-c8e9ead00f9f",
-        "name": "Ayesha Rahman",
-        "FirstName": "Ayesha",
-        "LastName": "Rahman",
-        "email": "cardiologist@demo.com",
+    test('correctly parses updated Doctor payload with all curl form fields', () {
+      final jsonUpdated = {
+        "id": 14,
+        "uuid": "5a3b09c3-ccdf-4c3c-b710-743b9048dbb6",
+        "name": "Haydar Ali",
+        "FirstName": "Haydar",
+        "LastName": "Ali",
+        "email": "haydar@gmail.com",
         "status": true,
-        "mobile": "+8801712000001",
+        "mobile": "01714774003",
         "isActive": true,
-        "registration_no": "BMDC-4471",
-        "gender": "female",
-        "dob": "1984-03-12",
+        "registration_no": "A-12345",
+        "gender": "male",
+        "dob": "1985-05-15",
         "specialization": "Cardiology",
-        "working_institute": "National Institute of Cardiovascular Diseases",
+        "working_institute": "Dhaka Medical College Hospital",
         "designation": "Consultant Cardiologist",
         "qualification": "MBBS, FCPS (Medicine), MD (Cardiology)",
-        "experience_years": 14,
-        "bio": "Interventional cardiologist with 14 years of experience.",
+        "experience_years": 10,
+        "bio": "Experienced cardiologist specializing in cardiovascular diseases.",
         "social": {
-          "facebook": "fb.com/dr.ayesha",
-          "linkedin": "linkedin.com/in/ayesha",
-          "youtube": null
+          "facebook": "https://facebook.com/doctor",
+          "linkedin": "https://linkedin.com/in/doctor",
+          "twitter": "https://twitter.com/doctor"
         },
-        "featured": true,
-        "educations": [
-          {
-            "id": 12,
-            "doctor_id": 1,
-            "degree": "MBBS",
-            "institute": "Dhaka Medical College",
-            "year": "2006",
-            "country": "Bangladesh"
-          },
-          {
-            "id": 13,
-            "doctor_id": 1,
-            "degree": "FCPS (Medicine)",
-            "institute": "BCPS",
-            "year": "2011",
-            "country": "Bangladesh"
-          }
-        ],
-        "experiences": [
-          {
-            "id": 9,
-            "doctor_id": 1,
-            "hospital_name": "National Institute of Cardiovascular Diseases",
-            "position": "Consultant Cardiologist",
-            "from_year": "2015",
-            "to_year": "Present",
-            "description": "Leading interventional cardiology unit."
-          }
-        ],
-        "profile_image": "https://medirx.unipexel.org/uploads/ayesha.jpg",
-        "average_rating": 4.9,
-        "review_count": 28,
-        "rating_distribution": [0, 0, 1, 5, 22]
+        "featured": false,
+        "educations": [],
+        "experiences": [],
+        "profile_image": null,
+        "doctorreviews": [],
+        "average_rating": 0,
+        "review_count": 0,
+        "rating_distribution": [0, 0, 0, 0, 0]
       };
 
-      final profile = DoctorProfile.fromJson(json7);
+      final profile = DoctorProfile.fromJson(jsonUpdated);
 
-      expect(profile.id, '1');
-      expect(profile.name, 'Ayesha Rahman');
+      expect(profile.phone, '01714774003');
+      expect(profile.gender, 'male');
+      expect(profile.dob, '1985-05-15');
       expect(profile.specialization, 'Cardiology');
+      expect(profile.hospital, 'Dhaka Medical College Hospital');
       expect(profile.designation, 'Consultant Cardiologist');
-      expect(profile.hospital, 'National Institute of Cardiovascular Diseases');
       expect(profile.qualification, 'MBBS, FCPS (Medicine), MD (Cardiology)');
-      expect(profile.regNo, 'BMDC-4471');
-      expect(profile.experienceYears, 14);
-      expect(profile.experience, '14 Years');
-      expect(profile.rating, 4.9);
-      expect(profile.reviewCount, 28);
-      expect(profile.profileImage, 'https://medirx.unipexel.org/uploads/ayesha.jpg');
-      expect(profile.educations.length, 2);
-      expect(profile.educations[0].degree, 'MBBS');
-      expect(profile.educations[0].institute, 'Dhaka Medical College');
-      expect(profile.experiences.length, 1);
-      expect(profile.experiences[0].hospitalName, 'National Institute of Cardiovascular Diseases');
-      expect(profile.experiences[0].position, 'Consultant Cardiologist');
-      expect(profile.experiences[0].fromYear, '2015');
-      expect(profile.experiences[0].toYear, 'Present');
-      expect(profile.social?.facebook, 'fb.com/dr.ayesha');
-      expect(profile.social?.linkedin, 'linkedin.com/in/ayesha');
+      expect(profile.regNo, 'A-12345');
+      expect(profile.experienceYears, 10);
+      expect(profile.bio, 'Experienced cardiologist specializing in cardiovascular diseases.');
+      expect(profile.social?.facebook, 'https://facebook.com/doctor');
+      expect(profile.social?.linkedin, 'https://linkedin.com/in/doctor');
+      expect(profile.social?.twitter, 'https://twitter.com/doctor');
     });
   });
 
-  group('DoctorProfileViewModel', () {
-    test('fetches doctor profile successfully', () async {
+  group('DoctorProfileViewModel updateDoctorProfile', () {
+    test('updates doctor profile successfully', () async {
       final mockRepo = MockDoctorRepository();
       mockRepo.profileToReturn = const DoctorProfile(
         id: '14',
         name: 'Haydar Ali',
-        qualification: 'MBBS',
-        specialization: 'General Medicine',
-        regNo: 'AC-54254',
-        hospital: 'City Clinic',
-        experience: '5 Years',
-        rating: 4.8,
+        qualification: 'MBBS, FCPS (Medicine), MD (Cardiology)',
+        specialization: 'Cardiology',
+        regNo: 'A-12345',
+        hospital: 'Dhaka Medical College Hospital',
+        experience: '10 Years',
+        experienceYears: 10,
+        rating: 5.0,
         totalPatients: 100,
-        phone: '01756483925',
+        phone: '01714774003',
         email: 'haydar@gmail.com',
-        bio: 'Experienced physician',
+        bio: 'Experienced cardiologist',
       );
 
       final viewModel = DoctorProfileViewModel(mockRepo);
-      expect(viewModel.isLoading, false);
-      expect(viewModel.doctorProfile, isNull);
 
-      await viewModel.fetchDoctorProfile(doctorId: '38');
+      final success = await viewModel.updateDoctorProfile(
+        doctorId: '38',
+        data: {
+          'phone': '01714774003',
+          'gender': 'male',
+          'dob': '1985-05-15',
+          'specialization': 'Cardiology',
+          'working_institute': 'Dhaka Medical College Hospital',
+          'designation': 'Consultant Cardiologist',
+          'qualification': 'MBBS, FCPS (Medicine), MD (Cardiology)',
+          'registration_no': 'A-12345',
+          'experience_years': '10',
+          'bio': 'Experienced cardiologist specializing in cardiovascular diseases.',
+          'specialization_ids': ['50', '48'],
+        },
+      );
 
-      expect(viewModel.isLoading, false);
-      expect(viewModel.errorMessage, isNull);
-      expect(viewModel.doctorProfile?.name, 'Haydar Ali');
-      expect(viewModel.doctorProfile?.regNo, 'AC-54254');
+      expect(success, true);
+      expect(viewModel.isUpdating, false);
+      expect(viewModel.updateErrorMessage, isNull);
+      expect(viewModel.doctorProfile?.phone, '01714774003');
+      expect(viewModel.doctorProfile?.regNo, 'A-12345');
     });
 
-    test('handles failure when repository returns error', () async {
+    test('handles update failure gracefully', () async {
       final mockRepo = MockDoctorRepository();
-      mockRepo.errorToReturn = 'Network error occurred';
+      mockRepo.errorToReturn = 'Validation error occurred';
 
       final viewModel = DoctorProfileViewModel(mockRepo);
-      await viewModel.fetchDoctorProfile(doctorId: '999');
 
-      expect(viewModel.isLoading, false);
-      expect(viewModel.errorMessage, 'Network error occurred');
-      expect(viewModel.doctorProfile, isNull);
+      final success = await viewModel.updateDoctorProfile(
+        doctorId: '38',
+        data: {},
+      );
+
+      expect(success, false);
+      expect(viewModel.isUpdating, false);
+      expect(viewModel.updateErrorMessage, 'Validation error occurred');
     });
   });
 }

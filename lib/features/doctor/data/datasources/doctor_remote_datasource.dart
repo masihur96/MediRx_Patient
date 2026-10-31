@@ -6,6 +6,13 @@ import '../../../../core/utils/storage_service.dart';
 abstract class DoctorRemoteDataSource {
   Future<Map<String, dynamic>> getDoctorProfile(dynamic doctorId, {String? token});
   Future<List<dynamic>> getDoctors({String? specialty, String? token});
+  Future<Map<String, dynamic>> updateDoctorProfile(
+    dynamic doctorId,
+    Map<String, dynamic> data, {
+    String? token,
+    String? imagePath,
+  });
+  Future<List<dynamic>> getMedicalSpecialties({String? token});
 }
 
 class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
@@ -46,6 +53,86 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
     final response = await _dataProvider.get(
       APIPath.doctors,
       queryParameters: specialty != null && specialty.isNotEmpty ? {'specialty': specialty} : null,
+      options: Options(
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $activeToken',
+        },
+      ),
+    );
+
+    final data = response.data;
+    if (data is Map && data['data'] is List) return data['data'] as List;
+    if (data is List) return data;
+    return [];
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateDoctorProfile(
+    dynamic doctorId,
+    Map<String, dynamic> data, {
+    String? token,
+    String? imagePath,
+  }) async {
+    final activeToken = (token != null && token.isNotEmpty)
+        ? token
+        : ((await StorageService.getToken()) ?? fallbackDoctorToken);
+
+    final formData = FormData();
+    formData.fields.add(const MapEntry('_method', 'PUT'));
+
+    for (final entry in data.entries) {
+      final key = entry.key;
+      final value = entry.value;
+
+      if (value is List) {
+        for (final item in value) {
+          formData.fields.add(MapEntry('$key[]', item.toString()));
+        }
+      } else if (value is Map) {
+        for (final subEntry in value.entries) {
+          if (subEntry.value != null && subEntry.value.toString().isNotEmpty) {
+            formData.fields.add(
+              MapEntry('$key[${subEntry.key}]', subEntry.value.toString()),
+            );
+          }
+        }
+      } else if (value != null) {
+        formData.fields.add(MapEntry(key, value.toString()));
+      }
+    }
+
+    if (imagePath != null && imagePath.isNotEmpty) {
+      formData.files.add(MapEntry(
+        'profile_image',
+        await MultipartFile.fromFile(imagePath),
+      ));
+    }
+
+    final response = await _dataProvider.post(
+      APIPath.doctorDetail(doctorId),
+      data: formData,
+      options: Options(
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $activeToken',
+          'X-HTTP-Method-Override': 'PUT',
+        },
+      ),
+    );
+
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<List<dynamic>> getMedicalSpecialties({String? token}) async {
+    final activeToken = (token != null && token.isNotEmpty)
+        ? token
+        : ((await StorageService.getToken()) ?? fallbackDoctorToken);
+
+    final response = await _dataProvider.get(
+      APIPath.medicalSpecialties,
       options: Options(
         headers: {
           'Accept': 'application/json',
