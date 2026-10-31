@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../data/doctor_dummy_data.dart';
 import '../data/doctor_models.dart';
 import 'doctor_patient_detail_screen.dart';
@@ -18,18 +20,29 @@ class DoctorHomeScreen extends StatelessWidget {
     final recentPrescriptions = DoctorDummyData.prescriptions.take(3).toList();
     final analytics = DoctorDummyData.analytics;
 
+    final authUser = context.watch<AuthViewModel>().currentUser;
+    final rawName = authUser?.fullName.trim() ?? '';
+    final doctorName = rawName.isNotEmpty
+        ? (rawName.toLowerCase().startsWith('dr') ? rawName : 'Dr. $rawName')
+        : doctor.name;
+    final initials = rawName.isNotEmpty
+        ? (rawName.contains(' ')
+            ? '${rawName.split(' ')[0][0]}${rawName.split(' ')[1][0]}'.toUpperCase()
+            : rawName.substring(0, rawName.length >= 2 ? 2 : 1).toUpperCase())
+        : 'AR';
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context, doctor),
+          _buildAppBar(context, doctor, doctorName, initials),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDoctorHeader(context, doctor),
+                  _buildDoctorHeader(context, doctor, doctorName, initials),
                   const SizedBox(height: 24),
                   _buildStatsRow(context, analytics),
                   const SizedBox(height: 24),
@@ -48,7 +61,8 @@ class DoctorHomeScreen extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildAppBar(BuildContext context, DoctorProfile doctor) {
+  SliverAppBar _buildAppBar(BuildContext context, DoctorProfile doctor,
+      String doctorName, String initials) {
     return SliverAppBar(
       floating: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -72,9 +86,9 @@ class DoctorHomeScreen extends StatelessWidget {
         IconButton(
           icon: CircleAvatar(
             radius: 16,
-            backgroundColor: AppColors.primaryTeal.withOpacity(0.2),
+            backgroundColor: AppColors.primaryTeal.withValues(alpha: 0.15),
             child: Text(
-              doctor.name.split(' ')[1][0],
+              initials.substring(0, 1),
               style: const TextStyle(
                 color: AppColors.primaryTeal,
                 fontWeight: FontWeight.bold,
@@ -99,7 +113,8 @@ class DoctorHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDoctorHeader(BuildContext context, DoctorProfile doctor) {
+  Widget _buildDoctorHeader(BuildContext context, DoctorProfile doctor,
+      String doctorName, String initials) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -114,9 +129,9 @@ class DoctorHomeScreen extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 32,
-            backgroundColor: Colors.white.withOpacity(0.2),
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             child: Text(
-              'AR',
+              initials,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -130,7 +145,7 @@ class DoctorHomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  doctor.name,
+                  doctorName,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -139,11 +154,15 @@ class DoctorHomeScreen extends StatelessWidget {
                 ),
                 Text(
                   doctor.qualification,
-                  style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13),
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13),
                 ),
                 Text(
                   doctor.specialization,
-                  style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 12),
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 12),
                 ),
                 const SizedBox(height: 6),
                 Row(
