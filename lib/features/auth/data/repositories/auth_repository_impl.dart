@@ -231,10 +231,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<bool>> forgotPassword({required String email}) async {
+  Future<Result<String>> forgotPassword({required String email}) async {
     try {
-      await _remoteDataSource.forgotPassword(email: email);
-      return const Success(true);
+      final response = await _remoteDataSource.forgotPassword(email: email);
+      if (response['success'] == false) {
+        return Error(
+          response['message']?.toString() ?? 'Failed to send reset link',
+          statusCode: response['code'] is int ? response['code'] as int : 400,
+        );
+      }
+      final message = response['message']?.toString() ??
+          'We have emailed your password reset link!';
+      return Success(message);
     } on AppException catch (e) {
       return Error(e.message, statusCode: e.statusCode ?? 400);
     } catch (e) {

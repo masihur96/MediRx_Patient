@@ -26,7 +26,7 @@ abstract class AuthRemoteDataSource {
 
   Future<void> logout({String? token});
 
-  Future<void> forgotPassword({required String email});
+  Future<Map<String, dynamic>> forgotPassword({required String email});
 
   Future<void> verifyOtp({
     required String email,
@@ -139,11 +139,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> forgotPassword({required String email}) async {
-    await _dataProvider.post(
+  Future<Map<String, dynamic>> forgotPassword({required String email}) async {
+    final response = await _dataProvider.post(
       APIPath.forgotPassword,
       data: {'email': email},
     );
+    return response.data as Map<String, dynamic>;
   }
 
   @override

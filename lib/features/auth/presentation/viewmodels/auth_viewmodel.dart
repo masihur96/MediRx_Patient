@@ -25,10 +25,12 @@ class AuthViewModel extends ChangeNotifier {
   UserEntity? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _successMessage;
 
   UserEntity? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get successMessage => _successMessage;
   bool get isAuthenticated => _currentUser != null;
 
   Future<void> initAuth() async {
@@ -142,6 +144,26 @@ class AuthViewModel extends ChangeNotifier {
 
     if (result.isSuccess) {
       _currentUser = result.data;
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> forgotPassword({required String email}) async {
+    _setLoading(true);
+    _errorMessage = null;
+    _successMessage = null;
+
+    final result = await _authRepository.forgotPassword(email: email);
+
+    _setLoading(false);
+
+    if (result.isSuccess) {
+      _successMessage = result.data;
       notifyListeners();
       return true;
     } else {

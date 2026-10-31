@@ -15,7 +15,7 @@ class APIPath {
   // Auth Endpoints
   static const String login = '$authBaseUrl/login';
   static const String register = '$authBaseUrl/register';
-  static const String forgotPassword = '$authBaseUrl/forgot-password';
+  static const String forgotPassword = '$authBaseUrl/password/email';
   static const String verifyOtp = '$authBaseUrl/verify-otp';
   static const String resetPassword = '$authBaseUrl/reset-password';
   static const String logout = '$authBaseUrl/logout';
