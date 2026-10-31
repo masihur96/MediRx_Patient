@@ -38,6 +38,8 @@ abstract class AuthRemoteDataSource {
     required String newPassword,
     required String otp,
   });
+
+  Future<bool> checkIsPatient();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -172,5 +174,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'otp': otp,
       },
     );
+  }
+
+  @override
+  Future<bool> checkIsPatient() async {
+    try {
+      final res = await _dataProvider.get(APIPath.patientDashboardOverview);
+      final data = res.data;
+      if (data is Map && data['success'] == true) {
+        return true;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 }

@@ -21,6 +21,31 @@ class UserModel extends UserEntity {
     final lastName = json['LastName'] ?? json['last_name'] ?? '';
     final nameFromParts = '$firstName $lastName'.trim();
 
+    String? role;
+    if (json['role'] != null && json['role'].toString().isNotEmpty) {
+      role = json['role'].toString();
+    } else if (json['isDoctor'] == true) {
+      role = 'Doctor';
+    } else if (json['isPatient'] == false) {
+      // Backend returns isPatient: false for doctor accounts
+      role = 'Doctor';
+    } else if (json['isPatient'] == true) {
+      role = 'Patient';
+    } else if (json['registration_type'] != null &&
+        json['registration_type'].toString().isNotEmpty) {
+      role = json['registration_type'].toString();
+    } else if (json['registrationType'] != null &&
+        json['registrationType'].toString().isNotEmpty) {
+      role = json['registrationType'].toString();
+    } else if (json['bmdc_number'] != null &&
+        json['bmdc_number'].toString().isNotEmpty) {
+      role = 'Doctor';
+    } else if (json['user_type'] != null) {
+      role = json['user_type'].toString();
+    } else if (json['type'] != null) {
+      role = json['type'].toString();
+    }
+
     return UserModel(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
       fullName: json['name'] ??
@@ -38,12 +63,7 @@ class UserModel extends UserEntity {
       uuid: json['uuid']?.toString(),
       status: json['status']?.toString(),
       createdAt: json['created_at']?.toString() ?? json['createdAt']?.toString(),
-      role: json['role']?.toString() ??
-          json['registration_type']?.toString() ??
-          json['registrationType']?.toString() ??
-          json['user_type']?.toString() ??
-          json['type']?.toString() ??
-          (json['bmdc_number'] != null ? 'Doctor' : null),
+      role: role,
     );
   }
 
@@ -61,6 +81,8 @@ class UserModel extends UserEntity {
       'status': status,
       'createdAt': createdAt,
       'role': role,
+      'isDoctor': isDoctor,
+      'isPatient': isPatient,
     };
   }
 }

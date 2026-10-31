@@ -60,9 +60,28 @@ class AuthRepositoryImpl implements AuthRepository {
         await StorageService.saveRefreshToken(refreshToken.toString());
       }
 
+      // Detect role from login response
+      String? detectedRole;
+      final rawUser = data['user'] ?? response['user'];
+      if (rawUser is Map) {
+        if (rawUser['isDoctor'] == true ||
+            rawUser['isPatient'] == false ||
+            rawUser['registration_type'] == 'Doctor') {
+          detectedRole = 'Doctor';
+        } else if (rawUser['isPatient'] == true ||
+            rawUser['registration_type'] == 'Patient') {
+          detectedRole = 'Patient';
+        } else if (rawUser['role'] != null) {
+          detectedRole = rawUser['role'].toString();
+        }
+      }
+
       UserModel? userModel;
       try {
-        final profileResult = await getUserProfile(token: token);
+        final profileResult = await getUserProfile(
+          token: token,
+          fallbackRole: detectedRole,
+        );
         if (profileResult.isSuccess && profileResult.data != null) {
           userModel = profileResult.data is UserModel
               ? profileResult.data as UserModel
@@ -71,8 +90,7 @@ class AuthRepositoryImpl implements AuthRepository {
       } catch (_) {}
 
       if (userModel == null) {
-        final userData = data['user'] ??
-            response['user'] ??
+        final userData = rawUser ??
             (data.containsKey('email') ||
                     data.containsKey('id') ||
                     data.containsKey('name') ||
@@ -81,13 +99,16 @@ class AuthRepositoryImpl implements AuthRepository {
                 : null);
 
         if (userData is Map<String, dynamic>) {
-          userModel = UserModel.fromJson(userData);
+          final merged = Map<String, dynamic>.from(userData);
+          if (detectedRole != null) merged['role'] = detectedRole;
+          userModel = UserModel.fromJson(merged);
         } else {
           userModel = UserModel(
             id: data['id']?.toString() ?? '',
             fullName: data['name'] ?? identifier,
             email: identifier.contains('@') ? identifier : '',
             phone: !identifier.contains('@') ? identifier : null,
+            role: detectedRole ?? 'Patient',
           );
         }
         await StorageService.saveUserData(userModel.toJson());
@@ -102,7 +123,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<UserEntity>> getUserProfile({String? token}) async {
+  Future<Result<UserEntity>> getUserProfile({
+    String? token,
+    String? fallbackRole,
+  }) async {
     try {
       final activeToken = token ?? await StorageService.getToken();
       final response =
@@ -116,9 +140,38 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       final profileData = response['data'] is Map<String, dynamic>
-          ? response['data'] as Map<String, dynamic>
-          : response;
+          ? Map<String, dynamic>.from(response['data'] as Map<String, dynamic>)
+          : Map<String, dynamic>.from(response);
 
+      // Determine role:
+      String? role = profileData['role']?.toString();
+      if (role == null || role.isEmpty) {
+        if (profileData['isDoctor'] == true) {
+          role = 'Doctor';
+        } else if (profileData['isPatient'] == false) {
+          role = 'Doctor';
+        } else if (profileData['isPatient'] == true) {
+          role = 'Patient';
+        } else if (fallbackRole != null && fallbackRole.isNotEmpty) {
+          role = fallbackRole;
+        } else {
+          // Check local cached session
+          final cached = await StorageService.getUserData();
+          if (cached != null &&
+              cached['role'] != null &&
+              cached['role'].toString().isNotEmpty) {
+            role = cached['role'].toString();
+          } else if (cached != null && cached['isDoctor'] == true) {
+            role = 'Doctor';
+          } else {
+            // Verify via patient check endpoint
+            final isPatient = await _remoteDataSource.checkIsPatient();
+            role = isPatient ? 'Patient' : 'Doctor';
+          }
+        }
+      }
+
+      profileData['role'] = role;
       final userModel = UserModel.fromJson(profileData);
       await StorageService.saveUserData(userModel.toJson());
 

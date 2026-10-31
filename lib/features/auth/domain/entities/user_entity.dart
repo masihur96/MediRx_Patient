@@ -32,4 +32,6 @@ class UserEntity {
     final r = (role ?? '').toLowerCase().trim();
     return r == 'doctor' || r.contains('doctor');
   }
+
+  bool get isPatient => !isDoctor;
 }

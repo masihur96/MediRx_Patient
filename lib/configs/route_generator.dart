@@ -8,6 +8,7 @@ import '../features/auth/presentation/register_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/blood_bank/presentation/blood_bank_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/doctor/presentation/doctor_dashboard_screen.dart';
 import '../features/doctor/presentation/doctor_home_screen.dart';
 import '../features/medication/presentation/medication_screen.dart';
 import '../features/menstrual_cycle/presentation/menstrual_cycle_screen.dart';
@@ -33,6 +34,7 @@ class RouteGenerator {
   static const String forgotPassword = '/forgot-password';
   static const String loginSuccess = '/login-success';
   static const String dashboard = '/dashboard';
+  static const String doctorDashboard = '/doctor-dashboard';
   static const String doctorHome = '/doctor-home';
   static const String medication = '/medication';
   static const String scheduling = '/scheduling';
@@ -70,6 +72,8 @@ class RouteGenerator {
         );
       case dashboard:
         return MaterialPageRoute(builder: (_) => const DashboardScreen());
+      case doctorDashboard:
+        return MaterialPageRoute(builder: (_) => const DoctorDashboardScreen());
       case doctorHome:
         return MaterialPageRoute(builder: (_) => const DoctorHomeScreen());
       case medication:

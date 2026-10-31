@@ -68,8 +68,8 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
       });
     });
 
-    // Auto-navigate to role-wise dashboard after 3 seconds
-    Timer(const Duration(seconds: 3), () {
+    // Auto-navigate to role-wise dashboard after 2 seconds
+    Timer(const Duration(milliseconds: 2000), () {
       if (mounted) {
         final isDoctor =
             context.read<AuthViewModel>().currentUser?.isDoctor ?? false;
@@ -198,7 +198,9 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Your identity has been verified.\nTaking you to your dashboard…',
+                        (context.watch<AuthViewModel>().currentUser?.isDoctor ?? false)
+                            ? 'Your doctor account is verified.\nTaking you to Doctor Module…'
+                            : 'Your identity has been verified.\nTaking you to Patient Module…',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
@@ -214,7 +216,9 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
                       Column(
                         children: [
                           Text(
-                            'Redirecting…',
+                            (context.watch<AuthViewModel>().currentUser?.isDoctor ?? false)
+                                ? 'Redirecting to Doctor Module…'
+                                : 'Redirecting to Patient Module…',
                             style: TextStyle(
                               fontSize: 12,
                               color: isDark
@@ -254,9 +258,11 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
                             (route) => false,
                           );
                         },
-                        child: const Text(
-                          'Go to Dashboard →',
-                          style: TextStyle(
+                        child: Text(
+                          (context.watch<AuthViewModel>().currentUser?.isDoctor ?? false)
+                              ? 'Go to Doctor Module →'
+                              : 'Go to Patient Module →',
+                          style: const TextStyle(
                             color: AppColors.primaryTeal,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,

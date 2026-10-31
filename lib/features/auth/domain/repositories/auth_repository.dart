@@ -8,7 +8,7 @@ abstract class AuthRepository {
     required String password,
   });
 
-  Future<Result<UserEntity>> getUserProfile({String? token});
+  Future<Result<UserEntity>> getUserProfile({String? token, String? fallbackRole});
 
   Future<Result<String>> refreshToken({String? token});
 

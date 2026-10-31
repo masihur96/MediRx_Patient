@@ -33,6 +33,9 @@ class AuthViewModel extends ChangeNotifier {
   String? get successMessage => _successMessage;
   bool get isAuthenticated => _currentUser != null;
 
+  bool get isDoctor => _currentUser?.isDoctor ?? false;
+  bool get isPatient => !isDoctor;
+
   Future<void> initAuth() async {
     _currentUser = await _authRepository.getCurrentUser();
     notifyListeners();
@@ -44,18 +47,23 @@ class AuthViewModel extends ChangeNotifier {
     return _currentUser;
   }
 
-  Future<bool> fetchUserProfile({String? token}) async {
+  Future<bool> fetchUserProfile({String? token, String? fallbackRole}) async {
     _setLoading(true);
     _errorMessage = null;
 
-    var result = await _authRepository.getUserProfile(token: token);
+    var result = await _authRepository.getUserProfile(
+      token: token,
+      fallbackRole: fallbackRole,
+    );
 
     // If 401 Unauthorized, attempt explicit token refresh and retry
     if (!result.isSuccess && result.statusCode == 401) {
       final refreshResult = await _authRepository.refreshToken();
       if (refreshResult.isSuccess) {
-        result =
-            await _authRepository.getUserProfile(token: refreshResult.data);
+        result = await _authRepository.getUserProfile(
+          token: refreshResult.data,
+          fallbackRole: fallbackRole,
+        );
       }
     }
 

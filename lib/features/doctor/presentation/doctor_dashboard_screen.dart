@@ -114,6 +114,12 @@ class DoctorMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = Provider.of<LocalizationProvider>(context);
+    final user = context.watch<AuthViewModel>().currentUser;
+    final doctorName = user?.fullName.trim().isNotEmpty == true
+        ? 'Dr. ${user!.fullName.trim()}'
+        : 'Dr. Sarah';
+    final email = user?.email.isNotEmpty == true ? user!.email : 'Medical Practitioner';
+
     return Scaffold(
       backgroundColor: AppColors.primaryTeal,
       body: SafeArea(
@@ -128,17 +134,17 @@ class DoctorMenuScreen extends StatelessWidget {
                 child: Icon(LucideIcons.user, size: 40, color: AppColors.primaryTeal),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Dr. Sarah',
-                style: TextStyle(
+              Text(
+                doctorName,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
-                'Cardiologist',
-                style: TextStyle(
+              Text(
+                email,
+                style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
                 ),
