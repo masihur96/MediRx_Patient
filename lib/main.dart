@@ -12,6 +12,7 @@ import 'core/theme/theme_provider.dart';
 import 'features/ai_assistant/presentation/viewmodels/ai_assistant_viewmodel.dart';
 import 'features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'features/dashboard/presentation/viewmodels/dashboard_viewmodel.dart';
+import 'features/doctor/presentation/viewmodels/doctor_profile_viewmodel.dart';
 import 'features/medication/presentation/viewmodels/medication_viewmodel.dart';
 import 'features/nearest_medical/presentation/viewmodels/hospital_viewmodel.dart';
 import 'features/notification/presentation/viewmodels/notification_viewmodel.dart';
@@ -40,6 +41,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => sl<NotificationViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<HospitalViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AiAssistantViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<DoctorProfileViewModel>()),
       ],
       child: const MediRxApp(),
     ),

@@ -53,6 +53,12 @@ import '../../features/ai_assistant/data/repositories/ai_assistant_repository_im
 import '../../features/ai_assistant/domain/repositories/ai_assistant_repository.dart';
 import '../../features/ai_assistant/presentation/viewmodels/ai_assistant_viewmodel.dart';
 
+// Doctor
+import '../../features/doctor/data/datasources/doctor_remote_datasource.dart';
+import '../../features/doctor/data/repositories/doctor_repository_impl.dart';
+import '../../features/doctor/domain/repositories/doctor_repository.dart';
+import '../../features/doctor/presentation/viewmodels/doctor_profile_viewmodel.dart';
+
 final GetIt sl = GetIt.instance;
 
 /// Initialize all core dependencies, repositories, usecases, and viewmodels
@@ -161,5 +167,16 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerFactory<AiAssistantViewModel>(
     () => AiAssistantViewModel(sl<AiAssistantRepository>()),
+  );
+
+  // ================= Feature: Doctor =================
+  sl.registerLazySingleton<DoctorRemoteDataSource>(
+    () => DoctorRemoteDataSourceImpl(sl<DataProvider>()),
+  );
+  sl.registerLazySingleton<DoctorRepository>(
+    () => DoctorRepositoryImpl(sl<DoctorRemoteDataSource>()),
+  );
+  sl.registerFactory<DoctorProfileViewModel>(
+    () => DoctorProfileViewModel(sl<DoctorRepository>()),
   );
 }
