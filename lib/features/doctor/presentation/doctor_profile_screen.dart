@@ -497,7 +497,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
   // ─── Profile Completion Prompt ─────────────────────────────────────────────
 
-  Widget _buildProfileCompletionCard(BuildContext context, DoctorProfile profile) {
+  Widget _buildProfileCompletionCard(
+      BuildContext context, DoctorProfile profile) {
     return Container(
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 16),
@@ -895,10 +896,6 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         ? profile.phone
         : (authUser?.phone ?? 'Not available');
 
-    final accountId = profile.id.isNotEmpty
-        ? '#${profile.id}'
-        : (authUser?.id != null ? '#${authUser.id}' : '#38');
-
     return _cardContainer(
       context,
       title: 'Contact & Account',
@@ -907,8 +904,6 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         _infoRow(context, LucideIcons.mail, 'Email Address', email,
             canCopy: true),
         _infoRow(context, LucideIcons.phone, 'Phone Number', phone,
-            canCopy: true),
-        _infoRow(context, LucideIcons.hash, 'Account ID', accountId,
             canCopy: true),
         if (profile.gender != null && profile.gender!.isNotEmpty)
           _infoRow(context, LucideIcons.user, 'Gender',
