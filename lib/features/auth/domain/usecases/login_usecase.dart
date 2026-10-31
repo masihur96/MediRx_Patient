@@ -4,10 +4,12 @@ import '../entities/user_entity.dart';
 import '../repositories/auth_repository.dart';
 
 class LoginParams {
-  final String email;
+  final String identifier;
   final String password;
 
-  const LoginParams({required this.email, required this.password});
+  const LoginParams({required this.identifier, required this.password});
+
+  String get email => identifier;
 }
 
 class LoginUseCase implements UseCase<Result<UserEntity>, LoginParams> {
@@ -18,7 +20,7 @@ class LoginUseCase implements UseCase<Result<UserEntity>, LoginParams> {
   @override
   Future<Result<UserEntity>> call(LoginParams params) {
     return _repository.login(
-      email: params.email,
+      identifier: params.identifier,
       password: params.password,
     );
   }

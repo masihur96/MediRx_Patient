@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/storage_service.dart';
 import 'login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -31,13 +32,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
     if (_currentPage < _onboardingData.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
+      await StorageService.setFirstRunCompleted();
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
@@ -82,7 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  color: AppColors.gradientTop.withOpacity(0.5),
+                                  color: AppColors.gradientTop.withValues(alpha: 0.5),
                                   child: const Icon(Icons.image, size: 100, color: AppColors.primaryTeal),
                                 );
                               },
@@ -130,7 +133,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: _currentPage == index
                         ? AppColors.primaryTeal
-                        : AppColors.primaryTeal.withOpacity(0.3),
+                        : AppColors.primaryTeal.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4.0),
                   ),
                 ),

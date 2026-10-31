@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/logo_widget.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
+import '../../doctor/presentation/doctor_dashboard_screen.dart';
+import 'viewmodels/auth_viewmodel.dart';
 
 class LoginSuccessScreen extends StatefulWidget {
   final String identifier;
@@ -65,12 +68,18 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
       });
     });
 
-    // Auto-navigate to dashboard after 3 seconds
+    // Auto-navigate to role-wise dashboard after 3 seconds
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
+        final isDoctor =
+            context.read<AuthViewModel>().currentUser?.isDoctor ?? false;
+        final Widget targetDashboard = isDoctor
+            ? const DoctorDashboardScreen()
+            : const DashboardScreen();
+
         Navigator.of(context).pushAndRemoveUntil(
           PageRouteBuilder(
-            pageBuilder: (_, animation, __) => const DashboardScreen(),
+            pageBuilder: (_, animation, __) => targetDashboard,
             transitionsBuilder: (_, animation, __, child) {
               return SlideTransition(
                 position: Tween<Offset>(
@@ -100,6 +109,10 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
   }
 
   String get _displayName {
+    final user = context.read<AuthViewModel>().currentUser;
+    if (user != null && user.fullName.trim().isNotEmpty) {
+      return user.fullName.trim();
+    }
     if (widget.isEmail) {
       final parts = widget.identifier.split('@');
       return parts[0].isNotEmpty ? _capitalize(parts[0]) : 'User';
@@ -227,9 +240,16 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen>
                       // Skip button
                       TextButton(
                         onPressed: () {
+                          final isDoctor = context
+                                  .read<AuthViewModel>()
+                                  .currentUser
+                                  ?.isDoctor ??
+                              false;
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                              builder: (_) => const DashboardScreen(),
+                              builder: (_) => isDoctor
+                                  ? const DoctorDashboardScreen()
+                                  : const DashboardScreen(),
                             ),
                             (route) => false,
                           );

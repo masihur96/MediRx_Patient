@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../auth/presentation/login_screen.dart';
+import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../data/doctor_models.dart';
 
 class DoctorSettingsScreen extends StatefulWidget {
@@ -403,7 +405,16 @@ class _DoctorSettingsScreenState extends State<DoctorSettingsScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await context.read<AuthViewModel>().logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.errorRed),
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),

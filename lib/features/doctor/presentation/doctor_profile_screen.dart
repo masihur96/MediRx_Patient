@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/presentation/login_screen.dart';
+import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../data/doctor_dummy_data.dart';
 import 'doctor_settings_screen.dart';
 
@@ -234,10 +237,18 @@ class DoctorProfileScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await context.read<AuthViewModel>().logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.errorRed),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.errorRed),
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
         ],

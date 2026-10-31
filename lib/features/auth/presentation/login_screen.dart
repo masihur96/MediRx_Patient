@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/logo_widget.dart';
+import '../../../shared/widgets/app_snackbar.dart';
 import '../../dashboard/presentation/dashboard_screen.dart';
 import '../../doctor/presentation/doctor_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
-import 'otp_verification_screen.dart';
+import 'login_success_screen.dart';
 import 'register_screen.dart';
+import 'viewmodels/auth_viewmodel.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,35 +64,42 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onLoginPressed() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final identifier = _identifierController.text.trim();
+    final password = _passwordController.text.trim();
+
     setState(() => _isLoading = true);
 
-    // Simulate credential verification
-    await Future.delayed(const Duration(seconds: 1));
+    final authViewModel = context.read<AuthViewModel>();
+    final success = await authViewModel.login(
+      identifier: identifier,
+      password: password,
+    );
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    // Navigate to OTP verification
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (_, animation, __) => OtpVerificationScreen(
-          identifier: _identifierController.text.trim(),
-          isEmail: _isEmail,
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, animation, __) => LoginSuccessScreen(
+            identifier: identifier,
+            isEmail: _isEmail,
+          ),
+          transitionsBuilder: (_, animation, __, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 500),
         ),
-        transitionsBuilder: (_, animation, __, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-            ),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 350),
-      ),
-    );
+      );
+    } else {
+      AppSnackBar.showError(
+        context,
+        message: authViewModel.errorMessage ?? 'Invalid login credentials.',
+      );
+    }
   }
 
   InputDecoration _buildInputDecoration({

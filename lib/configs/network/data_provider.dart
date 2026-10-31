@@ -48,8 +48,9 @@ class DataProvider {
         onError: (DioException error, handler) async {
           log('ERROR [${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
 
-          // Check for 401 Unauthorized for token refresh
-          if (error.response?.statusCode == 401) {
+          // Check for 401 Unauthorized for token refresh (skip for auth endpoints)
+          if (error.response?.statusCode == 401 &&
+              !error.requestOptions.path.contains('/auth/')) {
             final refreshed = await _handleTokenRefresh();
             if (refreshed) {
               final token = await StorageService.getToken();
@@ -212,6 +213,17 @@ class DataProvider {
             });
             if (fieldErrors.isNotEmpty) {
               message = fieldErrors.join('\n');
+            } else if (data['message'] != null) {
+              message = data['message'].toString();
+            }
+          } else if (data['errors'] is List &&
+              (data['errors'] as List).isNotEmpty) {
+            final errorList = (data['errors'] as List)
+                .where((e) => e != null && e.toString().trim().isNotEmpty)
+                .map((e) => e.toString().trim())
+                .toList();
+            if (errorList.isNotEmpty) {
+              message = errorList.join('\n');
             } else if (data['message'] != null) {
               message = data['message'].toString();
             }

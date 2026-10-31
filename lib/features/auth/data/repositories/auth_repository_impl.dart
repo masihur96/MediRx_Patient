@@ -13,14 +13,22 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<UserEntity>> login({
-    required String email,
+    required String identifier,
     required String password,
   }) async {
     try {
       final response = await _remoteDataSource.login(
-        email: email,
+        identifier: identifier,
         password: password,
       );
+
+      // Check if backend returned success == false in 200 OK response
+      if (response['success'] == false) {
+        return Error(
+          response['message']?.toString() ?? 'Login failed',
+          statusCode: response['code'] is int ? response['code'] as int : 400,
+        );
+      }
 
       final data = response['data'] is Map<String, dynamic>
           ? response['data'] as Map<String, dynamic>
@@ -30,14 +38,88 @@ class AuthRepositoryImpl implements AuthRepository {
       if (data['tokens'] is Map) {
         token = data['tokens']['accessToken'] ?? data['tokens']['token'];
       }
-      token ??= data['accessToken'] ?? data['token'] ?? response['token'];
+      token ??= data['accessToken'] ??
+          data['token'] ??
+          response['token'] ??
+          data['access_token'] ??
+          data['jwt'];
 
       if (token != null) {
         await StorageService.saveToken(token.toString());
       }
 
-      final userData = data['user'] ?? response['user'] ?? data;
-      final userModel = UserModel.fromJson(userData as Map<String, dynamic>);
+      String? refreshToken;
+      if (data['tokens'] is Map) {
+        refreshToken = data['tokens']['refreshToken'];
+      }
+      refreshToken ??= data['refreshToken'] ??
+          data['refresh_token'] ??
+          response['refreshToken'];
+
+      if (refreshToken != null) {
+        await StorageService.saveRefreshToken(refreshToken.toString());
+      }
+
+      UserModel? userModel;
+      try {
+        final profileResult = await getUserProfile(token: token);
+        if (profileResult.isSuccess && profileResult.data != null) {
+          userModel = profileResult.data is UserModel
+              ? profileResult.data as UserModel
+              : UserModel.fromJson((profileResult.data as dynamic).toJson());
+        }
+      } catch (_) {}
+
+      if (userModel == null) {
+        final userData = data['user'] ??
+            response['user'] ??
+            (data.containsKey('email') ||
+                    data.containsKey('id') ||
+                    data.containsKey('name') ||
+                    data.containsKey('FirstName')
+                ? data
+                : null);
+
+        if (userData is Map<String, dynamic>) {
+          userModel = UserModel.fromJson(userData);
+        } else {
+          userModel = UserModel(
+            id: data['id']?.toString() ?? '',
+            fullName: data['name'] ?? identifier,
+            email: identifier.contains('@') ? identifier : '',
+            phone: !identifier.contains('@') ? identifier : null,
+          );
+        }
+        await StorageService.saveUserData(userModel.toJson());
+      }
+
+      return Success(userModel);
+    } on AppException catch (e) {
+      return Error(e.message, statusCode: e.statusCode ?? 400);
+    } catch (e) {
+      return Error(e.toString());
+    }
+  }
+
+  @override
+  Future<Result<UserEntity>> getUserProfile({String? token}) async {
+    try {
+      final activeToken = token ?? await StorageService.getToken();
+      final response =
+          await _remoteDataSource.getUserProfile(token: activeToken);
+
+      if (response['success'] == false) {
+        return Error(
+          response['message']?.toString() ?? 'Failed to fetch user data',
+          statusCode: response['code'] is int ? response['code'] as int : 400,
+        );
+      }
+
+      final profileData = response['data'] is Map<String, dynamic>
+          ? response['data'] as Map<String, dynamic>
+          : response;
+
+      final userModel = UserModel.fromJson(profileData);
       await StorageService.saveUserData(userModel.toJson());
 
       return Success(userModel);
@@ -100,14 +182,18 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<bool>> logout() async {
     try {
+      final token = await StorageService.getToken();
       try {
-        await _remoteDataSource.logout();
+        if (token != null && token.isNotEmpty) {
+          await _remoteDataSource.logout(token: token);
+        }
       } catch (_) {
         // Proceed with local logout regardless of network status
       }
       await StorageService.logout();
       return const Success(true);
     } catch (e) {
+      await StorageService.logout();
       return Error(e.toString());
     }
   }

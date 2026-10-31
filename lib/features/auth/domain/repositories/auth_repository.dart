@@ -4,9 +4,11 @@ import '../entities/user_entity.dart';
 /// Abstract contract for Authentication repository
 abstract class AuthRepository {
   Future<Result<UserEntity>> login({
-    required String email,
+    required String identifier,
     required String password,
   });
+
+  Future<Result<UserEntity>> getUserProfile({String? token});
 
   Future<Result<UserEntity>> register({
     required String firstName,

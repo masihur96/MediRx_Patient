@@ -8,6 +8,9 @@ class APIPath {
   static const String patientBaseUrl = '$baseUrl/patient';
   static const String doctorBaseUrl = '$baseUrl/doctor';
 
+  // User & Profile Endpoints
+  static const String user = '$baseUrl/user';
+
   // Auth Endpoints
   static const String login = '$authBaseUrl/login';
   static const String register = '$authBaseUrl/register';

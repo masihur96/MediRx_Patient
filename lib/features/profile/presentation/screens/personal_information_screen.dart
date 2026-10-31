@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import 'edit_profile_screen.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 
 class PersonalInformationScreen extends StatefulWidget {
   const PersonalInformationScreen({super.key});
@@ -18,15 +20,37 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   final ImagePicker _picker = ImagePicker();
 
   // Profile Data State
-  String _name = 'Druvo';
-  String _dob = '12 Dec 1990';
-  String _gender = 'Male';
-  String _bloodGroup = 'O+';
+  String _name = 'Patient';
+  String _dob = 'Not set';
+  String _gender = 'Not set';
+  String _bloodGroup = 'Not set';
   String _height = '175';
   String _weight = '75';
-  String _email = 'patient@example.com';
-  String _phone = '+1 234 567 890';
-  String _address = '123 Main St, Springfield';
+  String _email = '';
+  String _phone = 'Not set';
+  String _address = 'Not set';
+
+  @override
+  void initState() {
+    super.initState();
+    final user = context.read<AuthViewModel>().currentUser;
+    if (user != null) {
+      if (user.fullName.trim().isNotEmpty) _name = user.fullName;
+      if (user.email.trim().isNotEmpty) _email = user.email;
+      if (user.phone != null && user.phone!.trim().isNotEmpty) {
+        _phone = user.phone!;
+      }
+      if (user.dateOfBirth != null && user.dateOfBirth!.trim().isNotEmpty) {
+        _dob = user.dateOfBirth!;
+      }
+      if (user.gender != null && user.gender!.trim().isNotEmpty) {
+        _gender = user.gender!;
+      }
+      if (user.bloodGroup != null && user.bloodGroup!.trim().isNotEmpty) {
+        _bloodGroup = user.bloodGroup!;
+      }
+    }
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -223,7 +247,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primaryTeal.withOpacity(0.1),
+                color: AppColors.primaryTeal.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: AppColors.primaryTeal, size: 20),

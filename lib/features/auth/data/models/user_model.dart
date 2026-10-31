@@ -10,6 +10,10 @@ class UserModel extends UserEntity {
     super.dateOfBirth,
     super.gender,
     super.bloodGroup,
+    super.uuid,
+    super.status,
+    super.createdAt,
+    super.role,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -19,13 +23,27 @@ class UserModel extends UserEntity {
 
     return UserModel(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
-      fullName: json['name'] ?? json['fullName'] ?? (nameFromParts.isNotEmpty ? nameFromParts : ''),
+      fullName: json['name'] ??
+          json['fullName'] ??
+          (nameFromParts.isNotEmpty ? nameFromParts : ''),
       email: json['email'] ?? '',
       phone: json['mobile'] ?? json['phone'],
-      profileImage: json['profile_image'] ?? json['profileImage'] ?? json['avatar'],
+      profileImage: json['profile_image_url'] ??
+          json['profile_image'] ??
+          json['profileImage'] ??
+          json['avatar'],
       dateOfBirth: json['dateOfBirth'],
       gender: json['gender'],
       bloodGroup: json['bloodGroup'],
+      uuid: json['uuid']?.toString(),
+      status: json['status']?.toString(),
+      createdAt: json['created_at']?.toString() ?? json['createdAt']?.toString(),
+      role: json['role']?.toString() ??
+          json['registration_type']?.toString() ??
+          json['registrationType']?.toString() ??
+          json['user_type']?.toString() ??
+          json['type']?.toString() ??
+          (json['bmdc_number'] != null ? 'Doctor' : null),
     );
   }
 
@@ -39,6 +57,10 @@ class UserModel extends UserEntity {
       'dateOfBirth': dateOfBirth,
       'gender': gender,
       'bloodGroup': bloodGroup,
+      'uuid': uuid,
+      'status': status,
+      'createdAt': createdAt,
+      'role': role,
     };
   }
 }

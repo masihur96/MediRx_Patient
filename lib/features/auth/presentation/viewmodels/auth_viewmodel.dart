@@ -36,15 +36,40 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<UserEntity?> getCurrentUser() async {
+    _currentUser = await _authRepository.getCurrentUser();
+    notifyListeners();
+    return _currentUser;
+  }
+
+  Future<bool> fetchUserProfile({String? token}) async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    final result = await _authRepository.getUserProfile(token: token);
+
+    _setLoading(false);
+
+    if (result.isSuccess) {
+      _currentUser = result.data;
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> login({
-    required String email,
+    required String identifier,
     required String password,
   }) async {
     _setLoading(true);
     _errorMessage = null;
 
     final result = await _loginUseCase(
-      LoginParams(email: email, password: password),
+      LoginParams(identifier: identifier, password: password),
     );
 
     _setLoading(false);

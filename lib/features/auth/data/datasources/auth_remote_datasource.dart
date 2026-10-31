@@ -1,11 +1,15 @@
+import 'package:dio/dio.dart';
 import '../../../../configs/network/data_provider.dart';
 import '../../../../core/constants/apis.dart';
+import '../../../../core/utils/storage_service.dart';
 
 abstract class AuthRemoteDataSource {
   Future<Map<String, dynamic>> login({
-    required String email,
+    required String identifier,
     required String password,
   });
+
+  Future<Map<String, dynamic>> getUserProfile({String? token});
 
   Future<Map<String, dynamic>> register({
     required String firstName,
@@ -18,7 +22,7 @@ abstract class AuthRemoteDataSource {
     String? bmdcNumber,
   });
 
-  Future<void> logout();
+  Future<void> logout({String? token});
 
   Future<void> forgotPassword({required String email});
 
@@ -41,15 +45,33 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Map<String, dynamic>> login({
-    required String email,
+    required String identifier,
     required String password,
   }) async {
     final response = await _dataProvider.post(
       APIPath.login,
       data: {
-        'email': email,
+        'identifier': identifier,
         'password': password,
       },
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getUserProfile({String? token}) async {
+    final response = await _dataProvider.get(
+      APIPath.user,
+      options: token != null && token.isNotEmpty
+          ? Options(headers: {
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            })
+          : Options(headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }),
     );
     return response.data as Map<String, dynamic>;
   }
@@ -86,8 +108,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> logout() async {
-    await _dataProvider.post(APIPath.logout);
+  Future<void> logout({String? token}) async {
+    final activeToken = token ?? await StorageService.getToken();
+    await _dataProvider.post(
+      APIPath.logout,
+      options: Options(headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        if (activeToken != null && activeToken.isNotEmpty)
+          'Authorization': 'Bearer $activeToken',
+      }),
+    );
   }
 
   @override

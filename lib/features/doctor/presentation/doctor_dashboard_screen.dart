@@ -9,6 +9,7 @@ import 'doctor_analytics_screen.dart';
 import 'doctor_settings_screen.dart';
 import 'doctor_profile_screen.dart';
 import '../../auth/presentation/login_screen.dart';
+import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:provider/provider.dart';
 import '../../../core/localization/app_localizations.dart';
 
@@ -169,11 +170,16 @@ class DoctorMenuScreen extends StatelessWidget {
               }),
               
               const Spacer(),
-              _buildMenuItem(context, LucideIcons.logOut, l10n.translate('logout'), () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (Route<dynamic> route) => false,
-                );
+              _buildMenuItem(
+                  context, LucideIcons.logOut, l10n.translate('logout'),
+                  () async {
+                await context.read<AuthViewModel>().logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (Route<dynamic> route) => false,
+                  );
+                }
               }),
             ],
           ),

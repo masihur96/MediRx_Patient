@@ -8,6 +8,10 @@ class UserEntity {
   final String? dateOfBirth;
   final String? gender;
   final String? bloodGroup;
+  final String? uuid;
+  final String? status;
+  final String? createdAt;
+  final String? role;
 
   const UserEntity({
     required this.id,
@@ -18,5 +22,14 @@ class UserEntity {
     this.dateOfBirth,
     this.gender,
     this.bloodGroup,
+    this.uuid,
+    this.status,
+    this.createdAt,
+    this.role,
   });
+
+  bool get isDoctor {
+    final r = (role ?? '').toLowerCase().trim();
+    return r == 'doctor' || r.contains('doctor');
+  }
 }
