@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:medirx_patient/configs/custom_size.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -46,7 +47,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
   Future<void> _loadProfile() async {
     final targetId = _resolveDoctorId();
-    await context.read<DoctorProfileViewModel>().fetchDoctorProfile(doctorId: targetId);
+    await context
+        .read<DoctorProfileViewModel>()
+        .fetchDoctorProfile(doctorId: targetId);
   }
 
   Future<void> _refreshProfile() async {
@@ -70,7 +73,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
   String _formatDoctorName(String? rawName, String fallback) {
     if (rawName == null || rawName.trim().isEmpty) return fallback;
     final trimmed = rawName.trim();
-    if (trimmed.toLowerCase().startsWith('dr.') || trimmed.toLowerCase().startsWith('dr ')) {
+    if (trimmed.toLowerCase().startsWith('dr.') ||
+        trimmed.toLowerCase().startsWith('dr ')) {
       return trimmed;
     }
     return 'Dr. $trimmed';
@@ -128,14 +132,17 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
     final doctorName = _formatDoctorName(rawName, 'Dr. Doctor');
     final initials = _getInitials(rawName);
 
-    final imageUrl = (profile.profileImage != null && profile.profileImage!.isNotEmpty)
-        ? profile.profileImage
-        : authUser?.profileImage;
+    final imageUrl =
+        (profile.profileImage != null && profile.profileImage!.isNotEmpty)
+            ? profile.profileImage
+            : authUser?.profileImage;
     final hasImage = imageUrl != null &&
         (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
 
     final doctorId = profile.uuid ??
-        (profile.id.isNotEmpty ? 'DOC-${profile.id}' : (authUser?.uuid ?? 'DOC-38'));
+        (profile.id.isNotEmpty
+            ? 'DOC-${profile.id}'
+            : (authUser?.uuid ?? 'DOC-38'));
 
     final isActive = profile.isActive == true || profile.status == true;
     final status = isActive ? 'Active' : 'Pending';
@@ -158,7 +165,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Doctor ID & Verification Card
-                _buildDoctorIdCard(context, profile, doctorId, status, isActive),
+                _buildDoctorIdCard(
+                    context, profile, doctorId, status, isActive),
                 const SizedBox(height: 16),
 
                 // Key Performance / Experience Metrics
@@ -241,53 +249,31 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
               children: [
                 const SizedBox(height: 24),
                 // Avatar with Verified Badge
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.6),
-                          width: 2,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 46,
-                        backgroundColor: Colors.white.withValues(alpha: 0.2),
-                        backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
-                        child: !hasImage
-                            ? Text(
-                                initials,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                ),
-                              )
-                            : null,
-                      ),
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      width: 2,
                     ),
-                    Positioned(
-                      bottom: 4,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.successGreen,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          LucideIcons.check,
-                          size: 13,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 46,
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+                    child: !hasImage
+                        ? Text(
+                            initials,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          )
+                        : null,
+                  ),
                 ),
                 const SizedBox(height: 10),
 
@@ -323,7 +309,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
                 // Designation / Specialization
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
@@ -358,22 +345,6 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
           ),
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(LucideIcons.refreshCw, size: 20),
-          tooltip: 'Refresh Profile',
-          onPressed: _refreshProfile,
-        ),
-        IconButton(
-          icon: const Icon(LucideIcons.settings, size: 20),
-          tooltip: 'Doctor Settings',
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const DoctorSettingsScreen()),
-          ),
-        ),
-        const SizedBox(width: 4),
-      ],
     );
   }
 
@@ -414,67 +385,26 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            'Reg No: $regNo',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: AppColors.primaryTeal,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? AppColors.successGreen.withValues(alpha: 0.15)
-                                : AppColors.warningOrange.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            status,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isActive
-                                  ? AppColors.successGreen
-                                  : AppColors.warningOrange,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Doctor ID: $doctorId',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[700],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+              Flexible(
+                child: Text(
+                  'Reg No: $regNo',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppColors.primaryTeal,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              SizedBox(
+                width: screenSize(context, .3),
               ),
               IconButton(
                 icon: const Icon(LucideIcons.copy, size: 18),
                 color: AppColors.primaryTeal,
-                tooltip: 'Copy Doctor ID',
-                onPressed: () => _copyToClipboard(doctorId, 'Doctor ID'),
+                tooltip: 'Copy Reg NO',
+                onPressed: () => _copyToClipboard(regNo, 'Reg NO'),
               ),
             ],
           ),
@@ -490,17 +420,16 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         ? '${profile.experienceYears} Yrs'
         : (profile.experience.isNotEmpty ? profile.experience : 'Clinical');
 
-    final ratingDisplay = profile.rating > 0
-        ? profile.rating.toStringAsFixed(1)
-        : '5.0';
+    final ratingDisplay =
+        profile.rating > 0 ? profile.rating.toStringAsFixed(1) : '5.0';
 
-    final reviewsDisplay = profile.reviewCount != null && profile.reviewCount! > 0
-        ? '${profile.reviewCount} Reviews'
-        : 'Top Rated';
+    final reviewsDisplay =
+        profile.reviewCount != null && profile.reviewCount! > 0
+            ? '${profile.reviewCount} Reviews'
+            : 'Top Rated';
 
-    final patientDisplay = profile.totalPatients > 0
-        ? '${profile.totalPatients}+'
-        : 'Active';
+    final patientDisplay =
+        profile.totalPatients > 0 ? '${profile.totalPatients}+' : 'Active';
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
@@ -568,7 +497,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
   // ─── Profile Completion Prompt ─────────────────────────────────────────────
 
-  Widget _buildProfileCompletionCard(BuildContext context, DoctorProfile profile) {
+  Widget _buildProfileCompletionCard(
+      BuildContext context, DoctorProfile profile) {
     return Container(
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 16),
@@ -605,7 +535,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
           TextButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Doctor profile editing coming soon')),
+                const SnackBar(
+                    content: Text('Doctor profile editing coming soon')),
               );
             },
             style: TextButton.styleFrom(
@@ -665,11 +596,13 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       children: [
         _infoRow(context, LucideIcons.user, 'Full Name', fullName),
         _infoRow(context, LucideIcons.award, 'Qualifications', qualification),
-        _infoRow(context, LucideIcons.activity, 'Specialization', specialization),
+        _infoRow(
+            context, LucideIcons.activity, 'Specialization', specialization),
         _infoRow(context, LucideIcons.fileBadge, 'BMDC Registration', regNo,
             canCopy: true),
         _infoRow(context, LucideIcons.briefcase, 'Designation', designation),
-        _infoRow(context, LucideIcons.building2, 'Hospital Affiliation', hospital),
+        _infoRow(
+            context, LucideIcons.building2, 'Hospital Affiliation', hospital),
         if (profile.experienceYears != null)
           _infoRow(context, LucideIcons.clock, 'Clinical Experience',
               '${profile.experienceYears} Years'),
@@ -749,7 +682,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       decoration: BoxDecoration(
         color: AppColors.primaryTeal.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.12)),
+        border:
+            Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -858,7 +792,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       decoration: BoxDecoration(
         color: AppColors.primaryTeal.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.12)),
+        border:
+            Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -918,7 +853,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     color: Colors.grey[700],
                   ),
                 ),
-                if (exp.description != null && exp.description!.trim().isNotEmpty) ...[
+                if (exp.description != null &&
+                    exp.description!.trim().isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     exp.description!.trim(),
@@ -961,14 +897,18 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       title: 'Contact & Account',
       icon: LucideIcons.contact,
       children: [
-        _infoRow(context, LucideIcons.mail, 'Email Address', email, canCopy: true),
-        _infoRow(context, LucideIcons.phone, 'Phone Number', phone, canCopy: true),
-        _infoRow(context, LucideIcons.hash, 'Account ID', accountId, canCopy: true),
+        _infoRow(context, LucideIcons.mail, 'Email Address', email,
+            canCopy: true),
+        _infoRow(context, LucideIcons.phone, 'Phone Number', phone,
+            canCopy: true),
+        _infoRow(context, LucideIcons.hash, 'Account ID', accountId,
+            canCopy: true),
         if (profile.gender != null && profile.gender!.isNotEmpty)
           _infoRow(context, LucideIcons.user, 'Gender',
               profile.gender![0].toUpperCase() + profile.gender!.substring(1)),
         if (profile.dob != null && profile.dob!.isNotEmpty)
-          _infoRow(context, LucideIcons.calendar, 'Date of Birth', profile.dob!),
+          _infoRow(
+              context, LucideIcons.calendar, 'Date of Birth', profile.dob!),
       ],
     );
   }
@@ -983,7 +923,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Doctor profile editing coming soon')),
+              const SnackBar(
+                  content: Text('Doctor profile editing coming soon')),
             ),
             icon: const Icon(LucideIcons.edit3, color: Colors.white, size: 18),
             label: const Text(
@@ -1021,7 +962,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primaryTeal,
-              side: BorderSide(color: AppColors.primaryTeal.withValues(alpha: 0.4)),
+              side: BorderSide(
+                  color: AppColors.primaryTeal.withValues(alpha: 0.4)),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -1043,7 +985,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.errorRed,
-              side: BorderSide(color: AppColors.errorRed.withValues(alpha: 0.5)),
+              side:
+                  BorderSide(color: AppColors.errorRed.withValues(alpha: 0.5)),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -1185,13 +1128,17 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: const [
-                ShimmerLoadingBox(width: double.infinity, height: 60, borderRadius: 14),
+                ShimmerLoadingBox(
+                    width: double.infinity, height: 60, borderRadius: 14),
                 SizedBox(height: 16),
-                ShimmerLoadingBox(width: double.infinity, height: 80, borderRadius: 16),
+                ShimmerLoadingBox(
+                    width: double.infinity, height: 80, borderRadius: 16),
                 SizedBox(height: 16),
-                ShimmerLoadingBox(width: double.infinity, height: 160, borderRadius: 16),
+                ShimmerLoadingBox(
+                    width: double.infinity, height: 160, borderRadius: 16),
                 SizedBox(height: 16),
-                ShimmerLoadingBox(width: double.infinity, height: 120, borderRadius: 16),
+                ShimmerLoadingBox(
+                    width: double.infinity, height: 120, borderRadius: 16),
               ],
             ),
           ),
@@ -1243,12 +1190,16 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadProfile,
-              icon: const Icon(LucideIcons.refreshCw, size: 16, color: Colors.white),
-              label: const Text('Retry Fetching', style: TextStyle(color: Colors.white)),
+              icon: const Icon(LucideIcons.refreshCw,
+                  size: 16, color: Colors.white),
+              label: const Text('Retry Fetching',
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryTeal,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
@@ -1265,7 +1216,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout from the Doctor Panel?'),
+        content: const Text(
+            'Are you sure you want to logout from the Doctor Panel?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -1282,7 +1234,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.errorRed),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.errorRed),
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
         ],
