@@ -1,7 +1,7 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -241,11 +241,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     l10n.translate('doctor_rating'),
                     Colors.indigo,
                     const DoctorRatingScreen()),
-                _buildDrawerNavigateItem(
-                    Icons.bloodtype_rounded,
-                    'Blood Bank',
-                    Colors.red,
-                    const BloodBankScreen()),
+                _buildDrawerNavigateItem(Icons.bloodtype_rounded, 'Blood Bank',
+                    Colors.red, const BloodBankScreen()),
                 const Divider(),
                 _buildDrawerNavigateItem(
                     LucideIcons.settings,
@@ -307,8 +304,8 @@ class _DashboardHomeView extends StatelessWidget {
 
     return Consumer<DashboardViewModel>(
       builder: (context, dashVm, _) {
-        final greeting = dashVm.patient?['greeting']?.toString() ??
-            'Welcome back!';
+        final greeting =
+            dashVm.patient?['greeting']?.toString() ?? 'Welcome back!';
         final healthId = dashVm.patient?['healthId']?.toString() ?? '';
         final adherence = dashVm.adherenceRate;
         final stats = dashVm.quickStats;
@@ -363,91 +360,101 @@ class _DashboardHomeView extends StatelessWidget {
                   else if (todayMeds.isEmpty)
                     _buildNoMedsCard(context)
                   else
-                    ...todayMeds.map((med) =>
-                        _buildLiveMedCard(context, med as Map<String, dynamic>)),
+                    ...todayMeds.map((med) => _buildLiveMedCard(
+                        context, med as Map<String, dynamic>)),
 
                   const SizedBox(height: 32),
 
                   // Medication History Heatmap
-            Text(
-              'Medication History',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            _buildHeatmap(context),
+                  Text(
+                    'Medication History',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildHeatmap(context),
 
-            const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-            // Modules Grid
-            Text(
-              'Other Services',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.1,
-              children: [
-                _buildModuleCard(context, l10n.translate('vaccine'),
-                    LucideIcons.syringe, Colors.amber, onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const VaccineScreen()));
-                }),
-                _buildModuleCard(context, l10n.translate('nearest_medical'),
-                    LucideIcons.mapPin, Colors.green, onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const NearestMedicalScreen()));
-                }),
-                _buildModuleCard(context, l10n.translate('pediatric_dose'),
-                    LucideIcons.baby, Colors.pink, onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const PediatricDoseScreen()));
-                }),
-                _buildModuleCard(context, l10n.translate('pregnancy'),
-                    LucideIcons.baby, Colors.pinkAccent, onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const PregnancyScreen()));
-                }),
-                _buildModuleCard(context, l10n.translate('menstrual_cycle'),
-                    LucideIcons.wheatOff, Colors.redAccent, onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const MenstrualCycleScreen()));
-                }),
-                _buildModuleCard(context, l10n.translate('doctor_rating'),
-                    LucideIcons.star, Colors.indigo, onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DoctorRatingScreen()));
-                }),
-                _buildModuleCard(
-                    context, 'Blood Bank', Icons.bloodtype_rounded, Colors.red,
-                    onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const BloodBankScreen()));
-                }),
-              ],
-            ),
+                  // Modules Grid
+                  Text(
+                    'Other Services',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.1,
+                    children: [
+                      _buildModuleCard(context, l10n.translate('vaccine'),
+                          LucideIcons.syringe, Colors.amber, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const VaccineScreen()));
+                      }),
+                      _buildModuleCard(
+                          context,
+                          l10n.translate('nearest_medical'),
+                          LucideIcons.mapPin,
+                          Colors.green, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const NearestMedicalScreen()));
+                      }),
+                      _buildModuleCard(
+                          context,
+                          l10n.translate('pediatric_dose'),
+                          LucideIcons.baby,
+                          Colors.pink, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const PediatricDoseScreen()));
+                      }),
+                      _buildModuleCard(context, l10n.translate('pregnancy'),
+                          LucideIcons.baby, Colors.pinkAccent, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const PregnancyScreen()));
+                      }),
+                      _buildModuleCard(
+                          context,
+                          l10n.translate('menstrual_cycle'),
+                          LucideIcons.wheatOff,
+                          Colors.redAccent, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const MenstrualCycleScreen()));
+                      }),
+                      _buildModuleCard(context, l10n.translate('doctor_rating'),
+                          LucideIcons.star, Colors.indigo, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const DoctorRatingScreen()));
+                      }),
+                      _buildModuleCard(context, 'Blood Bank',
+                          Icons.bloodtype_rounded, Colors.red, onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const BloodBankScreen()));
+                      }),
+                    ],
+                  ),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -458,8 +465,8 @@ class _DashboardHomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildGreetingCard(BuildContext context, String greeting,
-      String healthId, num adherence) {
+  Widget _buildGreetingCard(
+      BuildContext context, String greeting, String healthId, num adherence) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -490,8 +497,7 @@ class _DashboardHomeView extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(LucideIcons.activity,
-                  color: Colors.white, size: 16),
+              const Icon(LucideIcons.activity, color: Colors.white, size: 16),
               const SizedBox(width: 8),
               Text('Adherence: ${adherence.toStringAsFixed(0)}%',
                   style: const TextStyle(
@@ -513,8 +519,7 @@ class _DashboardHomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStats(
-      BuildContext context, Map<String, dynamic> stats) {
+  Widget _buildQuickStats(BuildContext context, Map<String, dynamic> stats) {
     return Row(
       children: [
         _buildStatChip(
@@ -560,9 +565,7 @@ class _DashboardHomeView extends StatelessWidget {
             const SizedBox(height: 6),
             Text(value,
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: color)),
+                    fontWeight: FontWeight.bold, fontSize: 18, color: color)),
             Text(label,
                 style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                 textAlign: TextAlign.center),
@@ -601,18 +604,14 @@ class _DashboardHomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildLiveMedCard(
-      BuildContext context, Map<String, dynamic> med) {
+  Widget _buildLiveMedCard(BuildContext context, Map<String, dynamic> med) {
     final name = med['medicine_name']?.toString() ??
         med['medicineName']?.toString() ??
         med['name']?.toString() ??
         'Medication';
-    final dose = med['dosage']?.toString() ??
-        med['dose']?.toString() ??
-        '';
-    final scheduledTime = med['scheduled_time']?.toString() ??
-        med['time']?.toString() ??
-        '';
+    final dose = med['dosage']?.toString() ?? med['dose']?.toString() ?? '';
+    final scheduledTime =
+        med['scheduled_time']?.toString() ?? med['time']?.toString() ?? '';
     final status = med['status']?.toString() ?? 'pending';
     final isTaken = status == 'taken';
 
@@ -636,9 +635,7 @@ class _DashboardHomeView extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(LucideIcons.pill,
-                  color: isTaken
-                      ? AppColors.primaryTeal
-                      : Colors.grey[400],
+                  color: isTaken ? AppColors.primaryTeal : Colors.grey[400],
                   size: 20),
             ),
             const SizedBox(width: 16),
@@ -649,15 +646,16 @@ class _DashboardHomeView extends StatelessWidget {
                   Text(name,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        decoration:
-                            isTaken ? TextDecoration.lineThrough : null,
+                        decoration: isTaken ? TextDecoration.lineThrough : null,
                         color: isTaken
                             ? Colors.grey
                             : Theme.of(context).textTheme.bodyLarge?.color,
                       )),
                   Text(
-                    [if (dose.isNotEmpty) dose, if (scheduledTime.isNotEmpty) scheduledTime]
-                        .join(' • '),
+                    [
+                      if (dose.isNotEmpty) dose,
+                      if (scheduledTime.isNotEmpty) scheduledTime
+                    ].join(' • '),
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
@@ -748,9 +746,11 @@ class _DashboardHomeView extends StatelessWidget {
                     child: Text('${index + 1}',
                         style: TextStyle(
                           fontSize: 10,
-                          color: opacity > 0.5 
-                              ? Colors.white 
-                              : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black54),
+                          color: opacity > 0.5
+                              ? Colors.white
+                              : (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white70
+                                  : Colors.black54),
                           fontWeight: FontWeight.bold,
                         )),
                   ),
@@ -823,8 +823,7 @@ class _DashboardHomeView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 Text('$dosage • $time',
                     style: TextStyle(color: Colors.grey[600], fontSize: 12)),
               ],
@@ -898,8 +897,7 @@ class _DashboardHomeView extends StatelessWidget {
               style:
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(title,
-              style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+          Text(title, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
         ],
       ),
     );
@@ -994,35 +992,65 @@ class _DashboardHomeView extends StatelessWidget {
                       color: Colors.blue.withOpacity(0.5),
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'BP (90-120)', style: const TextStyle(fontSize: 9, color: Colors.blue)),
+                      label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.topRight,
+                          padding: const EdgeInsets.only(right: 5, bottom: 5),
+                          labelResolver: (_) => 'BP (90-120)',
+                          style:
+                              const TextStyle(fontSize: 9, color: Colors.blue)),
                     ),
                     HorizontalLine(
                       y: 100,
                       color: Colors.purple.withOpacity(0.5),
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'Glucose (70-100)', style: const TextStyle(fontSize: 9, color: Colors.purple)),
+                      label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.topRight,
+                          padding: const EdgeInsets.only(right: 5, bottom: 5),
+                          labelResolver: (_) => 'Glucose (70-100)',
+                          style: const TextStyle(
+                              fontSize: 9, color: Colors.purple)),
                     ),
                     HorizontalLine(
                       y: 95,
                       color: Colors.cyan.withOpacity(0.5),
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(show: true, alignment: Alignment.bottomRight, padding: const EdgeInsets.only(right: 5, top: 5), labelResolver: (_) => 'SpO2 (95-100%)', style: const TextStyle(fontSize: 9, color: Colors.cyan)),
+                      label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.bottomRight,
+                          padding: const EdgeInsets.only(right: 5, top: 5),
+                          labelResolver: (_) => 'SpO2 (95-100%)',
+                          style:
+                              const TextStyle(fontSize: 9, color: Colors.cyan)),
                     ),
                     HorizontalLine(
                       y: 80,
                       color: Colors.red.withOpacity(0.5),
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'HR (60-100)', style: const TextStyle(fontSize: 9, color: Colors.red)),
+                      label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.topRight,
+                          padding: const EdgeInsets.only(right: 5, bottom: 5),
+                          labelResolver: (_) => 'HR (60-100)',
+                          style:
+                              const TextStyle(fontSize: 9, color: Colors.red)),
                     ),
                     HorizontalLine(
                       y: 37,
                       color: Colors.orange.withOpacity(0.5),
                       strokeWidth: 1,
                       dashArray: [5, 5],
-                      label: HorizontalLineLabel(show: true, alignment: Alignment.topRight, padding: const EdgeInsets.only(right: 5, bottom: 5), labelResolver: (_) => 'Temp (36.5-37.5)', style: const TextStyle(fontSize: 9, color: Colors.orange)),
+                      label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.topRight,
+                          padding: const EdgeInsets.only(right: 5, bottom: 5),
+                          labelResolver: (_) => 'Temp (36.5-37.5)',
+                          style: const TextStyle(
+                              fontSize: 9, color: Colors.orange)),
                     ),
                   ],
                 ),
@@ -1043,8 +1071,13 @@ class _DashboardHomeView extends StatelessWidget {
                   // Heart Rate
                   LineChartBarData(
                     spots: const [
-                      FlSpot(0, 72), FlSpot(1, 75), FlSpot(2, 71),
-                      FlSpot(3, 78), FlSpot(4, 73), FlSpot(5, 70), FlSpot(6, 72),
+                      FlSpot(0, 72),
+                      FlSpot(1, 75),
+                      FlSpot(2, 71),
+                      FlSpot(3, 78),
+                      FlSpot(4, 73),
+                      FlSpot(5, 70),
+                      FlSpot(6, 72),
                     ],
                     isCurved: true,
                     color: Colors.red,
@@ -1055,8 +1088,13 @@ class _DashboardHomeView extends StatelessWidget {
                   // Blood Pressure
                   LineChartBarData(
                     spots: const [
-                      FlSpot(0, 120), FlSpot(1, 118), FlSpot(2, 122),
-                      FlSpot(3, 119), FlSpot(4, 125), FlSpot(5, 121), FlSpot(6, 120),
+                      FlSpot(0, 120),
+                      FlSpot(1, 118),
+                      FlSpot(2, 122),
+                      FlSpot(3, 119),
+                      FlSpot(4, 125),
+                      FlSpot(5, 121),
+                      FlSpot(6, 120),
                     ],
                     isCurved: true,
                     color: Colors.blue,
@@ -1067,8 +1105,13 @@ class _DashboardHomeView extends StatelessWidget {
                   // SpO2
                   LineChartBarData(
                     spots: const [
-                      FlSpot(0, 98), FlSpot(1, 97), FlSpot(2, 99),
-                      FlSpot(3, 98), FlSpot(4, 98), FlSpot(5, 99), FlSpot(6, 98),
+                      FlSpot(0, 98),
+                      FlSpot(1, 97),
+                      FlSpot(2, 99),
+                      FlSpot(3, 98),
+                      FlSpot(4, 98),
+                      FlSpot(5, 99),
+                      FlSpot(6, 98),
                     ],
                     isCurved: true,
                     color: Colors.cyan,
@@ -1079,8 +1122,13 @@ class _DashboardHomeView extends StatelessWidget {
                   // Glucose
                   LineChartBarData(
                     spots: const [
-                      FlSpot(0, 95), FlSpot(1, 105), FlSpot(2, 92),
-                      FlSpot(3, 110), FlSpot(4, 98), FlSpot(5, 88), FlSpot(6, 95),
+                      FlSpot(0, 95),
+                      FlSpot(1, 105),
+                      FlSpot(2, 92),
+                      FlSpot(3, 110),
+                      FlSpot(4, 98),
+                      FlSpot(5, 88),
+                      FlSpot(6, 95),
                     ],
                     isCurved: true,
                     color: Colors.purple,
@@ -1091,8 +1139,13 @@ class _DashboardHomeView extends StatelessWidget {
                   // Temperature
                   LineChartBarData(
                     spots: const [
-                      FlSpot(0, 36.5), FlSpot(1, 36.6), FlSpot(2, 36.4),
-                      FlSpot(3, 36.7), FlSpot(4, 37.0), FlSpot(5, 36.5), FlSpot(6, 36.5),
+                      FlSpot(0, 36.5),
+                      FlSpot(1, 36.6),
+                      FlSpot(2, 36.4),
+                      FlSpot(3, 36.7),
+                      FlSpot(4, 37.0),
+                      FlSpot(5, 36.5),
+                      FlSpot(6, 36.5),
                     ],
                     isCurved: true,
                     color: Colors.orange,
@@ -1113,9 +1166,13 @@ class _DashboardHomeView extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 4),
-        Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+        Text(title,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
       ],
     );
   }
