@@ -48,9 +48,10 @@ class DataProvider {
         onError: (DioException error, handler) async {
           log('ERROR [${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
 
-          // Check for 401 Unauthorized for token refresh (skip for auth endpoints)
+          // Check for 401 Unauthorized for token refresh (skip for login / refresh-token endpoints)
           if (error.response?.statusCode == 401 &&
-              !error.requestOptions.path.contains('/auth/')) {
+              !error.requestOptions.path.contains('/auth/login') &&
+              !error.requestOptions.path.contains('/refresh-token')) {
             final refreshed = await _handleTokenRefresh();
             if (refreshed) {
               final token = await StorageService.getToken();
@@ -79,8 +80,9 @@ class DataProvider {
     _refreshCompleter = Completer<bool>();
 
     try {
-      final refreshToken = await StorageService.getRefreshToken();
-      if (refreshToken == null || refreshToken.isEmpty) {
+      final token = await StorageService.getToken() ??
+          await StorageService.getRefreshToken();
+      if (token == null || token.isEmpty) {
         _isRefreshing = false;
         _refreshCompleter?.complete(false);
         return false;
@@ -88,19 +90,46 @@ class DataProvider {
 
       final refreshDio = Dio(
         BaseOptions(
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 10),
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 15),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
         ),
       );
 
       final response = await refreshDio.post(
         APIPath.refreshToken,
-        data: {'refreshToken': refreshToken},
       );
 
-      if (response.statusCode == 200 && response.data != null) {
-        final newToken = response.data['accessToken'] ?? response.data['token'];
-        if (newToken != null) {
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.data != null) {
+        final data = response.data;
+        String? newToken;
+        if (data is Map) {
+          if (data['data'] is Map) {
+            final inner = data['data'] as Map;
+            newToken = inner['accessToken']?.toString() ??
+                inner['access_token']?.toString() ??
+                inner['token']?.toString() ??
+                (inner['tokens'] is Map
+                    ? (inner['tokens']['accessToken'] ??
+                            inner['tokens']['token'])
+                        ?.toString()
+                    : null);
+          }
+          newToken ??= data['accessToken']?.toString() ??
+              data['access_token']?.toString() ??
+              data['token']?.toString() ??
+              (data['tokens'] is Map
+                  ? (data['tokens']['accessToken'] ?? data['tokens']['token'])
+                      ?.toString()
+                  : null);
+        }
+
+        if (newToken != null && newToken.isNotEmpty) {
           await StorageService.saveToken(newToken);
           _isRefreshing = false;
           _refreshCompleter?.complete(true);

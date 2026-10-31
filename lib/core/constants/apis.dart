@@ -10,11 +10,11 @@ class APIPath {
 
   // User & Profile Endpoints
   static const String user = '$baseUrl/user';
+  static const String refreshToken = '$baseUrl/refresh-token';
 
   // Auth Endpoints
   static const String login = '$authBaseUrl/login';
   static const String register = '$authBaseUrl/register';
-  static const String refreshToken = '$authBaseUrl/refresh-token';
   static const String forgotPassword = '$authBaseUrl/forgot-password';
   static const String verifyOtp = '$authBaseUrl/verify-otp';
   static const String resetPassword = '$authBaseUrl/reset-password';

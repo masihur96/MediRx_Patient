@@ -11,6 +11,8 @@ abstract class AuthRemoteDataSource {
 
   Future<Map<String, dynamic>> getUserProfile({String? token});
 
+  Future<Map<String, dynamic>> refreshToken({String? token});
+
   Future<Map<String, dynamic>> register({
     required String firstName,
     required String lastName,
@@ -72,6 +74,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
             }),
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> refreshToken({String? token}) async {
+    final activeToken = token ?? await StorageService.getToken();
+    final response = await _dataProvider.post(
+      APIPath.refreshToken,
+      options: Options(headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        if (activeToken != null && activeToken.isNotEmpty)
+          'Authorization': 'Bearer $activeToken',
+      }),
     );
     return response.data as Map<String, dynamic>;
   }

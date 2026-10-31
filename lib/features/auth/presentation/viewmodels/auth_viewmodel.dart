@@ -46,12 +46,39 @@ class AuthViewModel extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
-    final result = await _authRepository.getUserProfile(token: token);
+    var result = await _authRepository.getUserProfile(token: token);
+
+    // If 401 Unauthorized, attempt explicit token refresh and retry
+    if (!result.isSuccess && result.statusCode == 401) {
+      final refreshResult = await _authRepository.refreshToken();
+      if (refreshResult.isSuccess) {
+        result =
+            await _authRepository.getUserProfile(token: refreshResult.data);
+      }
+    }
 
     _setLoading(false);
 
     if (result.isSuccess) {
       _currentUser = result.data;
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result.error;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> refreshToken() async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    final result = await _authRepository.refreshToken();
+
+    _setLoading(false);
+
+    if (result.isSuccess) {
       notifyListeners();
       return true;
     } else {

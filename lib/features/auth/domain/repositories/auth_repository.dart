@@ -10,6 +10,8 @@ abstract class AuthRepository {
 
   Future<Result<UserEntity>> getUserProfile({String? token});
 
+  Future<Result<String>> refreshToken({String? token});
+
   Future<Result<UserEntity>> register({
     required String firstName,
     required String lastName,

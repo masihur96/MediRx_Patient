@@ -131,6 +131,38 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<String>> refreshToken({String? token}) async {
+    try {
+      final activeToken = token ?? await StorageService.getToken();
+      final response = await _remoteDataSource.refreshToken(token: activeToken);
+
+      final data = response['data'] is Map<String, dynamic>
+          ? response['data'] as Map<String, dynamic>
+          : response;
+
+      String? newToken;
+      if (data['tokens'] is Map) {
+        newToken = data['tokens']['accessToken']?.toString() ??
+            data['tokens']['token']?.toString();
+      }
+      newToken ??= data['accessToken']?.toString() ??
+          data['access_token']?.toString() ??
+          data['token']?.toString() ??
+          response['token']?.toString();
+
+      if (newToken != null && newToken.isNotEmpty) {
+        await StorageService.saveToken(newToken);
+        return Success(newToken);
+      }
+      return const Error('Failed to parse refreshed token');
+    } on AppException catch (e) {
+      return Error(e.message, statusCode: e.statusCode ?? 400);
+    } catch (e) {
+      return Error(e.toString());
+    }
+  }
+
+  @override
   Future<Result<UserEntity>> register({
     required String firstName,
     required String lastName,
